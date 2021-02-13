@@ -29,4 +29,4 @@ Semantic UI:
 
 MongoDB:
     This is a database management tool that will be used to organize user information in the backend of the project. This information will include things such as login and billing information, project and resource details, user preferences and settings, as well as other information. MongoDB allows for changes to existing data structure to be made seamlessly, making adding features and improving the website simple. The addition of this database will satisfy system requirements 4, 5, and 10. 
-DIAGRAMS AND FIGURES
+DIAGRAMS AND FIGURES in the High Level Sketch PDF.
