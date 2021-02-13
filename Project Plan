@@ -1,0 +1,32 @@
+Project Plan
+STAKEHOLDER NEEDS AND ARISING FEATURES
+SN0: Generally Accepted Quality and Reliability Metrics
+The website will be hosted using Google Cloud Services. The code will use a server-client transfer model. The site will be up and running anytime it is needed. The code will be modular, well documented and use a thorough style guide throughout.
+SN1: Create and Maintain Secure User Accounts and Projects on the System
+The home page will have a login/signup button taking you to a login/signup portal. Upon successful login a list of your resources will be available along with some status messages, a request for email notifications, a help bar, and access to a web portal terminal to the machine. Passwords will be stored and encrypted. File uploads will also be securely encrypted.
+SN2: View the Status of all Hardware Resources in the System
+The home page will have 3 options, a super computing option, a mid range option and a micro computing option. These options will be presented as hover to flip cards. These cards will have a short description of the service and a button to navigate to that machine’s reservation landing page. These status pages will show a few different options of tiers/use cases. Upon selecting a machine network and a tier you will be brought to a page for making the reservation. A few premade options will be presented with their descriptions and specs along with pricing. An option for an interactive customizable option will be available. It will have a live price estimator. There will be options for number of cpu cores, gpu usage, ram etc. Messages for wait time/ availability will be present.
+SN3: Request Available Hardware Resources and Datasets from Published Sources
+A virtual status of all machines will be maintained so that availability can be tracked. Requests are made as described above and billing is described below.
+SN4: Once Approved, Checkout and Manage these Resources
+Email notifications will be available as well as management, diagnostic and statistical information will be available online once you login.
+SN5: Check-in the Resources and get Billing Information
+Resources will be automatically freed if an estimate is expired unless an auto-bill feature was selected. Billing will be collected at final selection and will be stored securely for repeat visits. Additionally we will attempt to use the paypal api to support paypal payments.
+SN6: Deliver PoC within budget and schedule constraints, with features for efficient progression to the deployed app
+We are all unpaid students so we work as long as we need. Deadline for the usable system will be approximately 2 weeks before the final revision due date. Daily and weekly timelines will be tracked and met.
+
+User stories and Features (Product Backlog) are on "Project" page
+
+CHOICE OF TOOLS AND APPROACH
+Python Flask:
+This is the tool that will be used for the backend portion of the project. This includes interacting with the database of logins and passwords from a user management standpoint. This also includes interacting with the database when giving information on availability and capacity of hardware sets from a resource management standpoint. Lastly, it includes the routing of API calls to allow for the download of the datasets from the data access standpoint. Thus, Flask will be able to satisfy System Requirements 5, 9, and 10 in our project. 
+
+React.js:
+    This is the tool that will be used for the frontend portion of the project. This includes creating a way for users to interact with the features connected to the backend of this project. This will be done by creating a website that is clean, concise, and navigable. This website will have a login page, hardware set page, an FAQ page, and a page for creating, viewing, and organizing personal projects on the website. React.js will be able to satisfy System Requirement 2 in our project.
+
+Semantic UI:
+    This is a library more than a tool with basic starter components throughout the web. It is a relatively popular library extender and offers many UI elements. We will supplement the elements in this library with custom code or modifications as well as the base  library inbuilt in react. This allows us to create a polished website without the overhead of coding all custom elements from scratch.
+
+MongoDB:
+    This is a database management tool that will be used to organize user information in the backend of the project. This information will include things such as login and billing information, project and resource details, user preferences and settings, as well as other information. MongoDB allows for changes to existing data structure to be made seamlessly, making adding features and improving the website simple. The addition of this database will satisfy system requirements 4, 5, and 10. 
+DIAGRAMS AND FIGURES
