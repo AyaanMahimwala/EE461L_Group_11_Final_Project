@@ -1,24 +1,24 @@
 import os
 from pymongo import MongoClient
 
-COLLECTION_NAME = 'data_sets'
+#COLLECTION_NAME = 'mongo_sets'
 
 class MongoEntry(object):
     def __init__(self):
-        mongo_url = os.environ.get('MONGO_URL')
-        self.db = MongoClient(mongo_url).data_sets
+        mongo_uri = os.environ.get('MONGO_DB_URI')
+        self.db = MongoClient(mongo_url).mongo_sets
 
     def find_all(self, selector):
-        return self.db.data_sets.find(selector)
+        return self.db.mongo_sets.find(selector)
  
     def find(self, selector):
-        return self.db.data_sets.find_one(selector)
+        return self.db.mongo_sets.find_one(selector)
  
-    def create(self, kudo):
-        return self.db.data_sets.insert_one(kudo)
+    def create(self, set):
+        return self.db.mongo_sets.insert_one(set)
 
-    def update(self, selector, data_set):
-        return self.db.data_sets.replace_one(selector, data_set).modified_count
+    def update(self, selector, set):
+        return self.db.mongo_sets.replace_one(selector, set).modified_count
  
     def delete(self, selector):
-        return self.db.data_sets.delete_one(selector).deleted_count
+        return self.db.mongo_sets.delete_one(selector).deleted_count

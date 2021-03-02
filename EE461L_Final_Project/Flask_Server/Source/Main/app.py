@@ -71,5 +71,6 @@ if __name__ == '__main__':
     except ValueError:
         PORT = 5555
     # Need to change this to enviorment based so the mongo class can read it
-    app.config['MONGO_DB_URI'] = "mongodb://mongo_super:mongo_secret@0.0.0.0:27017"
+    #app.config['MONGO_DB_URI'] = "mongodb://mongo_super:mongo_secret@0.0.0.0:27017"
+    os.environ["MONGO_DB_URI"] = "mongodb://mongo_super:mongo_secret@0.0.0.0:27017"
     app.run(HOST, PORT)

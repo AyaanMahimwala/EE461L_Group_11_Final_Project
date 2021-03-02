@@ -11,11 +11,11 @@ class DataSet(object):
     def find(self, selector):
         return self.client.find(selector)
  
-    def create(self, data_set):
-        return self.client.create(data_set)
+    def create(self, set):
+        return self.client.create(set)
   
-    def update(self, selector, data_set):
-        return self.client.update(selector, data_set)
+    def update(self, selector, set):
+        return self.client.update(selector, set)
   
     def delete(self, selector):
         return self.client.delete(selector)
