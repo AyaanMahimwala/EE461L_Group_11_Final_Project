@@ -1,11 +1,10 @@
 import React from 'react'
 import Layout from './Layout'
 
-export default function Login() {
+export default function Home() {
     return (
         <Layout>
-            <h2>Login</h2>
+            <h2>Home Page</h2>
         </Layout>
-        
     )
 }

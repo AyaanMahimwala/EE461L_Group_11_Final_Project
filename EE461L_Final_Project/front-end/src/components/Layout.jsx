@@ -1,10 +1,10 @@
 import React from 'react'
-import Header from './Header'
+import HeaderMenu from './HeaderMenu'
 
 export default function Layout(props) {
     return (
         <div>
-            <Header/>
+            <HeaderMenu/>
             {props.children}
 
         </div>
