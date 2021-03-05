@@ -1,5 +1,7 @@
 import React from 'react'
 import { Box, Button, HStack, Heading, Flex, Spacer } from '@chakra-ui/react'
+import { Link } from 'react-router-dom'
+
 
 export default function HeaderMenu() {
     return (
@@ -10,9 +12,15 @@ export default function HeaderMenu() {
             <Spacer />
             <Box>
                 <HStack>
-                    <Button variant="ghost">Home</Button>
-                    <Button variant="ghost">About Us</Button>
-                    <Button colorScheme="green">Log in</Button>
+                    <Link to='/'>
+                        <Button variant="ghost">Home</Button>
+                    </Link>
+                    <Link to='/aboutus'>
+                        <Button variant="ghost">About Us</Button>
+                    </Link>
+                    <Link to='login'>
+                        <Button colorScheme="green">Log in</Button>
+                    </Link>
                 </HStack>
             </Box>
         </Flex>
