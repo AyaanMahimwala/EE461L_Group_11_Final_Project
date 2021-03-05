@@ -63,6 +63,25 @@ def contact():
             return redirect(url_for('home'))
     return render_template('login.html', error=error)
 
+@app.route('/data_set/<page>', methods=['GET'])
+def get_data_sets(page):
+    """Gets requested dataset whether it be the example dataset or a certain page 
+    of the user's dataset. Return error message if page number is invalid"""
+    page_size = 10
+    if(page == 'example'):
+        return db['Data_Sets'].find().skip(0).limit(page_size)
+    try:
+        page = int(page)
+    except:
+        return "Invalid page number."
+    return selected_pages(page_size, page)
+
+def selected_pages(page_size, page):
+    """Returns all documents in a certain page of the user data sets"""
+    skip_num = page_size * (page - 1) # find how many documents to skip
+    cursor = db['Data_Sets'].find().skip(skip_num).limit(page_size) # narrow down which documents to include
+    return [i for i in cursor] # return all included documents
+
 if __name__ == '__main__':
     import os
     HOST = os.environ.get('SERVER_HOST', 'localhost')
