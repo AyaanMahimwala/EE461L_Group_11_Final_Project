@@ -2,6 +2,7 @@ import hashlib
 import base64
 import bcrypt
 from cryptography.fernet import Fernet
+import os.path
 
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
@@ -11,7 +12,7 @@ SALT_ROUNDS = 16
 
 class LoginSetService(object):
     """
-    Called on init, sets the client which is an abstract 'LoginSet' on the frontend
+    Sets the client which is an abstract 'LoginSet' on the frontend
     and a mongodb entry on the backend.
     """
     def __init__(self, login_set_client=DataSet(adapter=MongoEntry)):
@@ -20,21 +21,31 @@ class LoginSetService(object):
     """
     Generates a key and save it into a file
     """
-    def generate_key():
+    def generate_key(self):
         key = Fernet.generate_key()
         with open("secret.key", "wb") as key_file:
             key_file.write(key)
+        return key
 
     """
-    Load the previously generated key
+    Load the previously generated key or make a new one if first call
     """
-    def load_key():
-        return open("secret.key", "rb").read()
+    def load_key(self):
+        try:
+            key_file = open("secret.key", "rb")
+        except FileNotFoundError:
+            # doesn't exist
+            return self.generate_key()
+        else:
+            # exists
+            return key_file.read()
+        finally:
+            key_file.close()
 
     """
     Encrypts a message
     """
-    def encrypt_message(message):
+    def encrypt_message(self, message):
         key = load_key()
         encoded_message = message.encode()
         f = Fernet(key)
@@ -45,21 +56,25 @@ class LoginSetService(object):
     """
     Decrypts an encrypted message
     """
-    def decrypt_message(encrypted_message):
+    def decrypt_message(self, encrypted_message):
         key = load_key()
         f = Fernet(key)
         decrypted_message = f.decrypt(encrypted_message)
 
         print(decrypted_message.decode())
 
+    """
+    Hash a password for the first time
+    Using bcrypt, the salt is saved into the hash itself preventing rainbow table attacks
+    We use sha256 and encode using baase 64 to bypass the max length problems of blowfish
+    """
     def get_hashed_password(plain_text_password):
-      # Hash a password for the first time
-      # Using bcrypt, the salt is saved into the hash itself preventing rainbow table attacks
-      # We use sha256 and encode using baase 64 to bypass the max length problems of blowfish
       return bcrypt.hashpw(base64.b64encode(hashlib.sha256(plain_text_password).digest()), bcrypt.gensalt(rounds = SALT_ROUNDS))
 
+    """
+    Check hashed password. Using bcrypt, the salt is saved into the hash itself
+    """
     def check_password(plain_text_password, hashed_password):
-      # Check hashed password. Using bcrypt, the salt is saved into the hash itself
       return bcrypt.checkpw(base64.b64encode(hashlib.sha256(plain_text_password).digest()), hashed_password)
 
     """
