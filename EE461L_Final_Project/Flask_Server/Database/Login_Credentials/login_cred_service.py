@@ -1,6 +1,7 @@
 import hashlib
 import base64
 import bcrypt
+from cryptography.fernet import Fernet
 
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
@@ -10,18 +11,46 @@ SALT_ROUNDS = 16
 
 class LoginSetService(object):
     """
-    Called on init, sets the client which is an abstract 'DataSet' on the frontend
-    and a mongodb entry on the backend. It also sets the 'user_id' and 'password' 
-    so that we can save user specific logins.
+    Called on init, sets the client which is an abstract 'LoginSet' on the frontend
+    and a mongodb entry on the backend.
     """
-    def __init__(self, user_id, password, login_set_client=DataSet(adapter=MongoEntry)):
+    def __init__(self, login_set_client=DataSet(adapter=MongoEntry)):
         self.login_set_client = login_set_client
-        self.user_id = user_id
-        if not user_id:
-            raise Exception("user id not provided")
-        self.password = password
-        if not password:
-            raise Exception("password not provided")
+
+    """
+    Generates a key and save it into a file
+    """
+    def generate_key():
+        key = Fernet.generate_key()
+        with open("secret.key", "wb") as key_file:
+            key_file.write(key)
+
+    """
+    Load the previously generated key
+    """
+    def load_key():
+        return open("secret.key", "rb").read()
+
+    """
+    Encrypts a message
+    """
+    def encrypt_message(message):
+        key = load_key()
+        encoded_message = message.encode()
+        f = Fernet(key)
+        encrypted_message = f.encrypt(encoded_message)
+
+        print(encrypted_message)
+
+    """
+    Decrypts an encrypted message
+    """
+    def decrypt_message(encrypted_message):
+        key = load_key()
+        f = Fernet(key)
+        decrypted_message = f.decrypt(encrypted_message)
+
+        print(decrypted_message.decode())
 
     def get_hashed_password(plain_text_password):
       # Hash a password for the first time
@@ -32,3 +61,60 @@ class LoginSetService(object):
     def check_password(plain_text_password, hashed_password):
       # Check hashed password. Using bcrypt, the salt is saved into the hash itself
       return bcrypt.checkpw(base64.b64encode(hashlib.sha256(plain_text_password).digest()), hashed_password)
+
+    """
+    Finds a specific login_set by user_id (client side encrypted before send off)
+    Could use find_one but want the database to be ensured to be unique users
+    """
+    def find_login_set(self, user_id):
+        login_set = self.login_set_client.find({'user_id': user_id})
+        return self.dump(login_set)
+
+    """
+    Creates a specific login_set with an encrypted user_id and hashed password if new user
+    """
+    def create_login_set_for(self, user_id, password):
+        user_id_query = self.login_set_client.find()
+        if user_id not in user_id_query:
+            login_set = self.login_set_client.create(self.prepare_login_set(user_id, password))
+            return self.dump(login_set)
+    
+    """
+    Updates a specific login_set by user_id with new password, returns records affected which should be 1
+    """
+    def update_login_set_with(self, user_id, password):
+        records_affected = self.login_set_client.update({'user_id': user_id}, self.prepare_login_set(user_id, password))
+        return records_affected == 0
+
+    """
+    Deletes a specific login_set by user_id
+    """
+    def delete_login_set_for(self, user_id):
+        records_affected = self.login_set_client.delete({'user_id': user_id})
+        return records_affected == 0
+
+    """
+    Dumps login_set
+    """
+    def dump(self, login_set):
+        return LoginSetSchema.dump(login_set)
+
+    """
+    Used to update/create a login_set
+    """
+    def prepare_login_set(self, user_id, password):
+        login_set = {}
+        login_set['user_id'] = user_id
+        login_set['password'] = password
+        return login_set
+
+    """
+    Return True if login creds match else False
+    """
+    def validate_login_set(self, plain_text_user_id, plain_text_password):
+        login_set = find_login_set(self.encrypt_message(plain_text_user_id))
+        if not login_set:
+            #login not found
+            return False
+        else:
+            return self.get_hashed_password(plain_text_password) == login_set['password']

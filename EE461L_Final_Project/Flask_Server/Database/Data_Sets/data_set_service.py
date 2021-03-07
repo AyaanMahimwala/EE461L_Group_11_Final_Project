@@ -54,10 +54,10 @@ class DataSetService(object):
     Dumps all non-identifying info about the data_set
     """
     def dump(self, data):
-        return UserDataSetSchema(exclude=['_id']).dump(data).data
+        return UserDataSetSchema(exclude=['user_id']).dump(data).data
 
     """
-    USed to update data_set
+    Used to update/create data_set
     """
     def prepare_data_set(self, user_data_set):
         data = user_data_set.data
