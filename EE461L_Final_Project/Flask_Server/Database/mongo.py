@@ -1,24 +1,44 @@
 import os
 from pymongo import MongoClient
+import mongomock
 
-DATABASE_NAME = "EE461L_Final_Project_DB"
-DATABASE_HOST = os.environ.get('MONGO_DB_URI')
+class MongoEntry():
+    DATABASE_NAME = "EE461L_Final_Project_DB"
+    DATABASE_HOST = os.environ.get('MONGO_DB_URI')
+    MOCK = (os.getenv("MOCK", "False") == "True")
 
-DATABASE_USERNAME = "EE461L_Database_Username"
-DATABASE_PASSWORD = "EE461L_Database_Password"
+    DATABASE_USERNAME = "EE461L_Database_Username"
+    DATABASE_PASSWORD = "EE461L_Database_Password"
 
-class MongoEntry(object):
     def __init__(self, collection_name):
         try:
-            my_client = MongoClient( DATABASE_HOST )
-            my_client.test.authenticate( DATABASE_USERNAME , DATABASE_PASSWORD )
-            self.my_db = my_client[DATABASE_NAME]
-            self.my_collection = self.my_db[collection_name]
+            if self.MOCK == True:
+                # Mock the backend db if envion set
+                print("[+] Running client as mock!")
+                self.my_client = mongomock.MongoClient()
+            else:
+                print("[+] Running client as hosted!")
+                self.my_client = MongoClient( self.DATABASE_HOST )
+                self.my_client.test.authenticate( self.DATABASE_USERNAME , self.DATABASE_PASSWORD )
+            self.my_db = self.my_client[self.DATABASE_NAME]
+            if not collection_name in self.my_db.list_collection_names():
+                # Add collection if it doesn't already exist
+                # Not actually sure if needed, ngl
+                # Collection will not actually be added until documents are added to set
+                print("[+] Creating collection : {}!".format(collection_name))
+                #print(self.my_db.list_collection_names())
+                self.my_collection = self.my_db[collection_name]
+            else:
+                print("[+] Using existing collection : {}!".format(collection_name))
+                self.my_collection = self.my_db[collection_name]
 
             print("[+] Database connected!")
         except Exception as e:
             print("[+] Database connection error!")
             raise e
+
+    def get_client(self):
+        return self.my_client
 
     def find_all(self, selector):
         return self.my_collection.find(selector)

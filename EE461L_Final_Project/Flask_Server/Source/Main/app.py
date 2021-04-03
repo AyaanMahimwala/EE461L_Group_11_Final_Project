@@ -84,6 +84,8 @@ def selected_pages(page_size, page):
 
 if __name__ == '__main__':
     import os
+    # Allows for server hosted enviornment variables or will default to local host
+    # on port 5555 as a graceful default
     HOST = os.environ.get('SERVER_HOST', 'localhost')
     try:
         PORT = int(os.environ.get('SERVER_PORT', '5555'))

@@ -24,14 +24,21 @@
   <ItemGroup>
     <Compile Include="Flask_Server\Database\Data_Sets\data_set_schema.py" />
     <Compile Include="Flask_Server\Database\Data_Sets\data_set_service.py" />
+    <Compile Include="Flask_Server\Database\Data_Sets\__init__.py" />
     <Compile Include="Flask_Server\Database\db_entry.py" />
     <Compile Include="Flask_Server\Database\Hardware_Sets\hardware_set_schema.py" />
     <Compile Include="Flask_Server\Database\Hardware_Sets\hardware_set_service.py" />
+    <Compile Include="Flask_Server\Database\Hardware_Sets\__init__.py" />
     <Compile Include="Flask_Server\Database\Login_Credentials\login_cred_schema.py" />
     <Compile Include="Flask_Server\Database\Login_Credentials\login_cred_service.py" />
+    <Compile Include="Flask_Server\Database\Login_Credentials\__init__.py" />
     <Compile Include="Flask_Server\Database\mongo.py" />
+    <Compile Include="Flask_Server\Database\__init__.py" />
     <Compile Include="Flask_Server\Source\Main\app.py" />
-    <Compile Include="Flask_Server\Tests\test_app.py">
+    <Compile Include="Flask_Server\Source\Main\__init__.py" />
+    <Compile Include="Flask_Server\Source\__init__.py" />
+    <Compile Include="Flask_Server\test_app.py" />
+    <Compile Include="Flask_Server\__init__.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -41,7 +48,6 @@
     <Folder Include="Flask_Server\Database\Data_Sets\" />
     <Folder Include="Flask_Server\Database\Hardware_Sets\" />
     <Folder Include="Flask_Server\Database\Login_Credentials\" />
-    <Folder Include="Flask_Server\Tests\" />
     <Folder Include="Flask_Server\Source\" />
     <Folder Include="Flask_Server\Source\Main\" />
     <Folder Include="React_App\" />
