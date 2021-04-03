@@ -2,13 +2,15 @@ from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .data_set_schema import UserDataSetSchema
 
+DATASET_COLLECTION_NAME = "DataSet"
+
 class DataSetService(object):
     """
     Called on init, sets the client which is an abstract 'DataSet' on the frontend
     and a mongodb entry on the backend. It also sets the 'user_id' so that we can 
     save user specific data_sets or settings.
     """
-    def __init__(self, user_id, data_set_client=DataSet(adapter=MongoEntry)):
+    def __init__(self, user_id, data_set_client=DataSet(adapter=MongoEntry(DATASET_COLLECTION_NAME))):
         self.data_set_client = data_set_client
         self.user_id = user_id
 

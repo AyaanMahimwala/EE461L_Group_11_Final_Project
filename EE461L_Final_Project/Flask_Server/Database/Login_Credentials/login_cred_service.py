@@ -9,13 +9,14 @@ from ..mongo import MongoEntry
 from .login_cred_schema import LoginSetSchema
 
 SALT_ROUNDS = 16
+LOGIN_COLLECTION_NAME = "LoginSet"
 
 class LoginSetService(object):
     """
     Sets the client which is an abstract 'LoginSet' on the frontend
     and a mongodb entry on the backend.
     """
-    def __init__(self, login_set_client=DataSet(adapter=MongoEntry)):
+    def __init__(self, login_set_client=DataSet(adapter=MongoEntry(LOGIN_COLLECTION_NAME))):
         self.login_set_client = login_set_client
 
     """

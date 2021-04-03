@@ -31,6 +31,9 @@
     <Compile Include="Flask_Server\Database\Login_Credentials\login_cred_service.py" />
     <Compile Include="Flask_Server\Database\mongo.py" />
     <Compile Include="Flask_Server\Source\Main\app.py" />
+    <Compile Include="Flask_Server\Tests\test_app.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flask_Server\" />
@@ -38,6 +41,7 @@
     <Folder Include="Flask_Server\Database\Data_Sets\" />
     <Folder Include="Flask_Server\Database\Hardware_Sets\" />
     <Folder Include="Flask_Server\Database\Login_Credentials\" />
+    <Folder Include="Flask_Server\Tests\" />
     <Folder Include="Flask_Server\Source\" />
     <Folder Include="Flask_Server\Source\Main\" />
     <Folder Include="React_App\" />
