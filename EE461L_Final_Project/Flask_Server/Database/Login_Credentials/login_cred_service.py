@@ -3,6 +3,7 @@ import base64
 import bcrypt
 from cryptography.fernet import Fernet
 import os.path
+from bson.objectid import ObjectId
 
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
@@ -198,14 +199,16 @@ class LoginSetService():
     Get user by _id
     """
     def get_user_by_id(self, id):
-        user = self.login_set_client.find({'_id' : id}) or None
+        user = self.login_set_client.find({'_id' : ObjectId(id)}) or None
         return user
 
     """
     Get user_name by _id
     """
     def get_user_name_by_id(self, id):
-        user = self.login_set_client.find({'_id' : id}) or None
+        user = self.login_set_client.find({'_id' : ObjectId(id)}) or None
+        #print("USER in get_user_name_by_id")
+        #print(user)
         if user:
             user_name = self.decrypt_message(user.get('user_name'))
             return user_name
@@ -215,7 +218,7 @@ class LoginSetService():
     Get user_active by _id
     """
     def get_user_active_by_id(self, id):
-        user = self.login_set_client.find({'_id' : id}) or None
+        user = self.login_set_client.find({'_id' : ObjectId(id)}) or None
         if user:
             user_active = user.get('user_active')
             return user_active
