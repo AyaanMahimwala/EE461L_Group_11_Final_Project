@@ -100,88 +100,88 @@ class LoginSetService():
             return 0
 
     """
-    Finds a specific login_set by user_id (client side encrypted before send off)
+    Finds a specific login_set by user_name (client side encrypted before send off)
     Could use find_one but want the database to be ensured to be unique users
     """
-    def find_login_set(self, user_id):
+    def find_login_set(self, user_name):
         # Get users
         #print(self.login_set_client.find_all({}))
         login_sets = list(self.login_set_client.find_all({})) or []
         #print(login_sets, type(login_sets))
         if login_sets != []:
             #print("theres an entry")
-            #print(login_set.get('user_id'), type(login_set.get('user_id')))
+            #print(login_set.get('user_name'), type(login_set.get('user_name')))
             for login_set in login_sets:
-                if (self.decrypt_message(login_set.get('user_id')) == user_id):
-                    return "True"
-        return "False"
+                if (self.decrypt_message(login_set.get('user_name')) == user_name):
+                    return True
+        return False
 
     """
-    Creates a specific login_set with an encrypted user_id and hashed password if new user
+    Creates a specific login_set with an encrypted user_name and hashed password if new user
     """
-    def create_login_set_for(self, user_id, password):
+    def create_login_set_for(self, user_name, password):
         #print("create")
-        if self.find_login_set(user_id) == "False":
+        if self.find_login_set(user_name) == False:
             # Encrypt
-            user_id = self.encrypt_message(str(user_id))
+            user_name = self.encrypt_message(str(user_name))
             # Hash
             password = self.get_hashed_password(str(password))
             #print("making new user")
-            login_set = self.login_set_client.create(self.prepare_login_set(user_id, password))
+            login_set = self.login_set_client.create(self.prepare_login_set(user_name, password))
             #print(login_set)
-            #print("True" if login_set != None else "False")
-            return "True" if login_set != None else "False"
+            #print(True if login_set != None else False)
+            return True if login_set != None else False
         else:
             #print("user already exists")
-            return "False"
+            return False
     
     """
-    Updates a specific login_set by user_id with new password, returns records affected which should be 1
+    Updates a specific login_set by user_name with new password, returns records affected which should be 1
     """
-    def update_login_set_with(self, user_id, password):
+    def update_login_set_with(self, user_name, password):
         records_affected = 0
         # Get users
         login_sets = list(self.login_set_client.find_all({})) or []
         #print(login_set, type(login_set))
         if login_sets != []:
             for login_set in login_sets:
-                if (self.decrypt_message(login_set.get('user_id')) == user_id):
+                if (self.decrypt_message(login_set.get('user_name')) == user_name):
                     # Encrypt
-                    user_id = self.encrypt_message(str(user_id))
+                    user_name = self.encrypt_message(str(user_name))
                     # Hash
                     password = self.get_hashed_password(str(password))
-                    records_affected = self.login_set_client.update({'user_id': login_set.get('user_id')}, self.prepare_login_set(user_id, password))
-        return "True" if records_affected > 0 else "False"
+                    records_affected = self.login_set_client.update({'user_name': login_set.get('user_name')}, self.prepare_login_set(user_name, password))
+        return True if records_affected > 0 else False
 
     """
-    Deletes a specific login_set by user_id
+    Deletes a specific login_set by user_name
     """
-    def delete_login_set_for(self, user_id):
+    def delete_login_set_for(self, user_name):
         records_affected = 0
         # Get users
         login_sets = list(self.login_set_client.find_all({})) or []
         #print(login_set, type(login_set))
         if login_sets != []:
             for login_set in login_sets:
-                if (self.decrypt_message(login_set.get('user_id')) == user_id):
+                if (self.decrypt_message(login_set.get('user_name')) == user_name):
                     #print("Deleting : {}".format(login_set))
-                    records_affected = self.login_set_client.delete({'user_id': login_set.get('user_id')})
+                    records_affected = self.login_set_client.delete({'user_name': login_set.get('user_name')})
                     #print(records_affected)
-        return "True" if records_affected > 0 else "False"
+        return True if records_affected > 0 else False
 
     """
     Dumps login_set, doesn't make sense in this context but left in case
     """
     def dump(self, login_set):
         login_set_dump = LoginSetSchema.dump(login_set)
-        return self.decrypt_message(login_set_dump.get('user_id'))
+        return self.decrypt_message(login_set_dump.get('user_name'))
 
     """
     Used to update/create a login_set
     """
-    def prepare_login_set(self, user_id, password):
+    def prepare_login_set(self, user_name, password):
         login_set = {}
-        login_set['user_id'] = user_id
+        login_set['user_name'] = user_name
         login_set['password'] = password
         schema = LoginSetSchema()
         result = schema.load(login_set)
@@ -190,12 +190,12 @@ class LoginSetService():
     """
     Return True if login creds match else False
     """
-    def validate_login_set(self, plain_text_user_id, plain_text_password):
+    def validate_login_set(self, plain_text_user_name, plain_text_password):
         # Get users
         login_sets = list(self.login_set_client.find_all({})) or []
         #print(login_sets, type(login_sets))
         if login_sets != []:
             #print(login_set)
             for login_set in login_sets:
-                if (self.decrypt_message(login_set.get('user_id')) == plain_text_user_id):
-                    return "True" if self.check_password(plain_text_password, login_set.get('password')) else "False"
+                if (self.decrypt_message(login_set.get('user_name')) == plain_text_user_name):
+                    return True if self.check_password(plain_text_password, login_set.get('password')) else False
