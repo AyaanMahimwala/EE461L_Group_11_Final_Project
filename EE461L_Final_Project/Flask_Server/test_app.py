@@ -12,6 +12,7 @@ from flask_cors import CORS
 from flask_login import (
     LoginManager,
     UserMixin,
+    AnonymousUserMixin,
     current_user,
     login_required,
     login_user,
@@ -30,15 +31,24 @@ os.environ["MOCK"] = "True"
 from Database.Login_Credentials.login_cred_service import LoginSetService
 
 # TODO
-# Need to implement class functions for UserMixin
-# Need to wrap the servicer in this class
+# These two classes provide implementations of user classes
 # https://flask-login.readthedocs.io/en/latest/#your-user-class
+class User(UserMixin):
+    def __init__(self, user_active):
+        self.user_active = user_active
+
+    def is_active(self):
+        return self.user_active
+
+
+class AnonUser(AnonymousUserMixin):
+    self.user_name = "Anonymous"
 
 def create_app() -> Flask:
     # Create exposed DB entry point
     my_login_set_service_g = LoginSetService()
     # Static folder can house things like images or any backend data not suited for db storage
-    app = Flask(__name__, static_folder="public")
+    app = Flask(__name__, static_folder="Static")
 
     # Set configs
     # Set the server up for session based access
@@ -50,38 +60,66 @@ def create_app() -> Flask:
         SESSION_COOKIE_HTTPONLY=True,
         # limit the cookies to HTTPS traffic only for production.
         REMEMBER_COOKIE_HTTPONLY=True,
+        # Set the timeout (in seconds) on cookies, default is 365 days, setting to 1 hr
+        REMEMBER_COOKIE_DURATION=3600,
         # Lax loosens security a bit so that cookies will be sent cross-domain for the majority of requests.
         SESSION_COOKIE_SAMESITE="Lax",
     )
 
     # Setup the login manager
     login_manager = LoginManager()
-    login_manager.init_app(app)
+
+    # If the identifiers for user (hash of ip and agent) do not match in strong mode for a non-permanent session, 
+    # then the entire session (as well as the remember token if it exists) is deleted.
     login_manager.session_protection = "strong"
+    # Set anon user, not really used yet
+    login_manager.anonymous_user = AnonUser
+
+    login_manager.init_app(app)
+
+    """
+    This callback is used to reload the user object from the user ID stored in the session. 
+    It should take the unicode ID of a user, and return the corresponding user object.
+    """
+    @login_manager.user_loader
+    def load_user(user_id):
+        this_user_id = my_login_set_service_g.get_id(this_user_name)
+        if this_user_id:
+            this_user_active = my_login_set_service_g.get_user_active_by_id(this_user_id)
+            user_model = User(user_active = this_user_active)
+            user_model.id = this_user_id
+            return user_model
+        return None
 
     # Setup csrf, add csrf token to meta tag of front end
     # <meta name="csrf-token" content="{{ csrf_token() }}" />
     # Assign when component mounts
     # let csrf = document.getElementsByName("csrf-token")[0].content;
+    # In app request need to form like this
+    """
+      fetch("/api/data", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf,
+        },
+        credentials: "same-origin",
+      })
+    """
+    # Since Flask is ultimately serving up the SPA, the CSRF cookie will be set automatically.
     csrf = CSRFProtect(app)
-    cors = CORS(
-        app,
-        resources={r"*": {"origins": "http://localhost:8080"}},
-        expose_headers=["Content-Type", "X-CSRFToken"],
-        supports_credentials=True,
-    )
 
     # Register the login routes
 
     # Default route
-    @app.route("/", methods=["GET", "POST", "DELETE", "HEAD", "PUT"])
-    def default():
-        #print("route default")
-        return jsonify("Home"), 200
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def home(path):
+        return jsonify({"error": "Error : use api routes!"})
 
     # Since front end seperate port and thread from backend we provide a sanity check function to ping the connection
     @app.route("/api/ping", methods=["GET"])
-    def home():
+    def ping():
         return jsonify({"ping": "pong!"})
 
     # Get count of users
@@ -146,35 +184,74 @@ def create_app() -> Flask:
         # Return the serialized (by marshmallow schema) user
         return jsonify({"login_validated" : my_login_set_service_g.validate_login_set(this_user_name, this_user_password)}), 200
 
+    # Api route for a form login
+    # Forms mean that the user and pass aren't exposed in the request url
+    @app.route("/api/login", methods=["GET", "POST"])
+    def login():
+        # Ignore GETs, Ignore malformed forms. If the form has user_name ...
+        if (request.method == "POST") and ("user_name" in request.form) and ("user_password" in request.form):
+            # Grab the user_name
+            this_user_name = request.form["user_name"]
+            # Grab the user_password
+            this_user_password = request.form["user_password"]
+            # Check if login succeeds
+            if my_login_set_service_g.validate_login_set(this_user_name, this_user_password):
+                # Check if the user should be remembered
+                remember = request.form.get("remember", "no") == "yes"
+                # Should know the user exists, recheck anyways
+                this_user_id = my_login_set_service_g.get_id(this_user_name)
+                if this_user_id:
+                    this_user_active = my_login_set_service_g.get_user_active_by_id(this_user_id)
+                    user_model = User(user_active = this_user_active)
+                    user_model.id = this_user_id
+                else:
+                    return jsonify({"login": False})
+                if login_user(dump_user, remember=remember):
+                    # Return the login status
+                    return jsonify({"login": True})
+                else:
+                    # Don't know why this would be false, some examples have this some don't
+                    return jsonify({"login": False})
+            else:
+                # Bad info, let front end handle notifs
+                return jsonify({"login": False})
+        # Return false if the request is malformed
+        return jsonify({"login": False})
+
+    # Api route for reauth
+    @app.route("/api/reauth", methods=["GET", "POST"])
+    @login_required
+    def reauth():
+        # Only accept POSTs
+        if request.method == "POST":
+            confirm_login()
+            return jsonify({"reauth": True})
+        return jsonify({"reauth": False})
+
+    # Api route for logout
+    @app.route("/api/logout")
+    @login_required
+    def logout():
+        # We don't need any user info because we are logged in
+        logout_user()
+        return jsonify({"logout": True})
+
     # Fetch data for authenticated user
-    @app.route("/api/session/data/", methods=["GET"])
+    @app.route("/api/session/user_name/", methods=["GET"])
     @login_required
     def get_session_data():
         # Get the request user_name arg
-        this_user_name = request.args.get("user_name")
+        this_user_name = my_login_set_service_g.get_user_name_by_id(current_user.id)
         # Could return any user specific data here
         return jsonify({"user_data" : "This is some private data for {}!".format(this_user_name)})
         print("In session data func")
 
-    # Check if a session exists on our server
+    # Check if a session exists on our flask server
     @app.route("/api/session/validate/", methods=["GET"])
     def validate_session():
         if current_user.is_authenticated:
             return jsonify({"login": True})
-
         return jsonify({"login": False})
-
-    # Create a session if one does not exist
-
-    # This is what generates our csrf token stored as meta data in react app
-    @app.route("/api/getcsrf", methods=["GET"])
-    def get_csrf():
-        token = generate_csrf()
-        response = jsonify({"detail": "CSRF cookie set"})
-        response.headers.set("X-CSRFToken", token)
-        return response
-
-    return app
 
 class TestLoginSet(unittest.TestCase):
     """
