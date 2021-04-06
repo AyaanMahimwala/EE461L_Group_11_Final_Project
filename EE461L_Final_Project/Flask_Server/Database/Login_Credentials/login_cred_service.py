@@ -120,15 +120,17 @@ class LoginSetService():
     """
     Creates a specific login_set with an encrypted user_name and hashed user_password if new user
     """
-    def create_login_set_for(self, user_name, user_password):
+    def create_login_set_for(self, user_name, user_password, user_email):
         #print("create")
         if self.find_login_set(user_name) == False:
             # Encrypt
             user_name = self.encrypt_message(str(user_name))
             # Hash
             user_password = self.get_hashed_user_password(str(user_password))
+            # Encrypt
+            user_email = self.encrypt_message(str(user_email))
             #print("making new user")
-            login_set = self.login_set_client.create(self.prepare_login_set(user_name, user_password))
+            login_set = self.login_set_client.create(self.prepare_login_set(user_name, user_password, user_email))
             #print(login_set)
             #print(True if login_set != None else False)
             return True if login_set != None else False
@@ -139,7 +141,7 @@ class LoginSetService():
     """
     Updates a specific login_set by user_name with new user_password, returns records affected which should be 1
     """
-    def update_login_set_with(self, user_name, user_password):
+    def update_login_set_with(self, user_name, user_password, user_email):
         records_affected = 0
         # Get users
         login_sets = list(self.login_set_client.find_all({})) or []
@@ -151,7 +153,9 @@ class LoginSetService():
                     user_name = self.encrypt_message(str(user_name))
                     # Hash
                     user_password = self.get_hashed_user_password(str(user_password))
-                    records_affected = self.login_set_client.update({'user_name': login_set.get('user_name')}, self.prepare_login_set(user_name, user_password))
+                    # Encrypt
+                    user_email = self.encrypt_message(str(user_email))
+                    records_affected = self.login_set_client.update({'user_name': login_set.get('user_name')}, self.prepare_login_set(user_name, user_password, user_email))
         return True if records_affected > 0 else False
 
     """
@@ -227,11 +231,12 @@ class LoginSetService():
     """
     Used to update/create a login_set
     """
-    def prepare_login_set(self, user_name, user_password):
+    def prepare_login_set(self, user_name, user_password, user_email):
         login_set = {}
         login_set['user_name'] = user_name
         login_set['user_password'] = user_password
         login_set['user_active'] = True
+        login_set['user_email'] = user_email
         schema = LoginSetSchema()
         result = schema.load(login_set)
         return login_set
