@@ -380,6 +380,7 @@ class TestLoginSet(unittest.TestCase):
     client = create_app().test_client()
 
     def test_empty_count(self):
+        print("LOGINSET TEST CASE : TEST EMPTY COUNT")
         print("----------------------------------------------------------------------")
         # Test count
         print("[TEST] Test of empty count")
@@ -393,6 +394,7 @@ class TestLoginSet(unittest.TestCase):
         print("----------------------------------------------------------------------")
 
     def test_empty_find(self):
+        print("LOGINSET TEST CASE : TEST EMPTY FIND")
         print("----------------------------------------------------------------------")
         # Empty find
         print("[TEST] Test of empty find")
@@ -406,6 +408,7 @@ class TestLoginSet(unittest.TestCase):
         print("----------------------------------------------------------------------")
 
     def test_empty_delete(self):
+        print("LOGINSET TEST CASE : TEST EMPTY DELETE")
         print("----------------------------------------------------------------------")
         # Test count
         print("[TEST] Test of empty count")
@@ -428,6 +431,7 @@ class TestLoginSet(unittest.TestCase):
         print("----------------------------------------------------------------------")
 
     def test_create_and_delete(self):
+        print("LOGINSET TEST CASE : TEST CREATE AND DELETE")
         print("----------------------------------------------------------------------")
         # Create
         print("[TEST] Test of create and find")
@@ -493,6 +497,7 @@ class TestLoginSet(unittest.TestCase):
         print("----------------------------------------------------------------------")
 
     def test_validate_and_update_and_delete(self):
+        print("LOGINSET TEST CASE : TEST VALIDATE AND UPDATE AND DELETE")
         print("----------------------------------------------------------------------")
         # Create
         print("[TEST] Test of create and find")
@@ -593,6 +598,7 @@ class TestLoginSet(unittest.TestCase):
         print("----------------------------------------------------------------------")
 
     def test_sessions(self):
+        print("LOGINSET TEST CASE : TEST SESSIONS")
         print("----------------------------------------------------------------------")
         # Create
         print("[TEST] Test of create and find")
@@ -731,8 +737,236 @@ class TestDataSet(unittest.TestCase):
     # Create the test client adapter
     client = create_app().test_client()
 
-    def test_something(self):
+    def test_empty_count(self):
+        print("DATASET TEST CASE : TEST EMPTY COUNT")
         print("----------------------------------------------------------------------")
+        # Test count
+        print("[TEST] Test of empty count")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/count", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["data_count"], 0, "This should be 0 as no data sets posted")
+        print("----------------------------------------------------------------------")
+
+    def test_empty_find(self):
+        print("DATASET TEST CASE : TEST EMPTY FIND")
+        print("----------------------------------------------------------------------")
+        # Empty find
+        print("[TEST] Test of empty find")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/find/", method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+        ).get_data())
+        self.assertEqual(response["data_set_found"] != "null", False, "This should be false as no data sets posted")
+        print("----------------------------------------------------------------------")
+
+    def test_empty_delete(self):
+        print("DATASET TEST CASE : TEST EMPTY DELETE")
+        print("----------------------------------------------------------------------")
+
+        # Test count
+        print("[TEST] Test of empty count")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/count", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["data_count"], 0, "This should be 0 as no data sets posted")
+
+        # Create
+        print("[TEST] Test of create login")
+
+        response = json.loads(self.client.post(
+            "/api/login_set/create", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username", "user_password" : "password", "user_email" : "foo@bar.com"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login_created"], True, "This should be true as this is first user post")
+
+        # Form session
+        print("[TEST] Test of form session")
+
+        response = json.loads(self.client.post(
+            "/api/login", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username", "user_password" : "password"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login"], True, "This should be true as the user has been posted and session should be able to be made")
+
+        # Validate session
+        print("[TEST] Test of validate session")
+
+        response = json.loads(self.client.get(
+            "/api/session/validate", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["session"], True, "This should be true as the session has been made")
+
+        # Delete
+        print("[TEST] Test of empty delete")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/delete/", method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+        ).get_data())
+        self.assertEqual(response["data_set_deleted"], False, "This should be false as no data sets posted")
+
+        # Destroy session
+        print("[TEST] Test of destroy session")
+
+        response = json.loads(self.client.post(
+            "/api/logout", 
+            method="POST",
+        ).get_data())
+        self.assertEqual(response["logout"], True, "This should be true as the user has been posted and session should be able to be destroyed")
+
+        # Validate session
+        print("[TEST] Test of validate session")
+
+        response = json.loads(self.client.get(
+            "/api/session/validate", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["session"], False, "This should be false as the session has been destroyed")
+
+        # Delete
+        print("[TEST] Test of delete login")
+
+        response = json.loads(self.client.post(
+            "/api/login_set/delete", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login_deleted"], True, "This should be true as the user has been posted")
+
+        print("----------------------------------------------------------------------")
+
+    def test_create_and_delete(self):
+        print("DATASET TEST CASE : TEST CREATE AND DELETE")
+        print("----------------------------------------------------------------------")
+
+        # Create
+        print("[TEST] Test of create login")
+
+        response = json.loads(self.client.post(
+            "/api/login_set/create", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username", "user_password" : "password", "user_email" : "foo@bar.com"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login_created"], True, "This should be true as this is first user post")
+
+        # Form session
+        print("[TEST] Test of form session")
+
+        response = json.loads(self.client.post(
+            "/api/login", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username", "user_password" : "password"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login"], True, "This should be true as the user has been posted and session should be able to be made")
+
+        # Validate session
+        print("[TEST] Test of validate session")
+
+        response = json.loads(self.client.get(
+            "/api/session/validate", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["session"], True, "This should be true as the session has been made")
+
+        # Create
+        print("[TEST] Test of create and find")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/create/", 
+            method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+            data=json.dumps({"file_size" : "file_size", "description" : "description", "data_set_url" : "https://www.data_set_url.com", "private" : False}), 
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["data_set_created"], True, "This should be true as this is data_set")
+
+        # Test non-empty count
+        print("[TEST] Test of non-empty count")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/count", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["data_count"], 1, "This should be 1 as we just created data_set")
+
+        # Non-empty find
+        print("[TEST] Test of non-empty find")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/find/", method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+        ).get_data())
+        self.assertEqual(response["data_set_found"] != "null", True, "This should be true as data set posted")
+
+        # Delete and find
+        print("[TEST] Test of delete")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/delete/", method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+        ).get_data())
+        self.assertEqual(response["data_set_deleted"], True, "This should be true as data sets posted")
+
+        # Test count after delete
+        print("[TEST] Test of empty count after delete")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/count", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["data_count"], 0, "This should be 0 as no data sets posted after delete")
+        
+        # Empty find after delete
+        print("[TEST] Test of empty find after delete")
+
+        response = json.loads(self.client.get(
+            "/api/data_set/find/", method="GET", 
+            query_string={"data_set_name" : "data_set_name"}, 
+        ).get_data())
+        self.assertEqual(response["data_set_found"] != "null", False, "This should be false as no data sets posted after delete")
+        
+        # Destroy session
+        print("[TEST] Test of destroy session")
+
+        response = json.loads(self.client.post(
+            "/api/logout", 
+            method="POST",
+        ).get_data())
+        self.assertEqual(response["logout"], True, "This should be true as the user has been posted and session should be able to be destroyed")
+
+        # Validate session
+        print("[TEST] Test of validate session")
+
+        response = json.loads(self.client.get(
+            "/api/session/validate", 
+            method="GET",
+        ).get_data())
+        self.assertEqual(response["session"], False, "This should be false as the session has been destroyed")
+        
+        # Delete
+        print("[TEST] Test of delete login")
+
+        response = json.loads(self.client.post(
+            "/api/login_set/delete", 
+            method="POST", 
+            data=json.dumps({"user_name" : "username"}),
+            content_type='application/json',
+        ).get_data())
+        self.assertEqual(response["login_deleted"], True, "This should be true as the user has been posted")
 
         print("----------------------------------------------------------------------")
 

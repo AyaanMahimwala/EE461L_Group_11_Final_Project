@@ -1,3 +1,12 @@
+import json
+from bson import ObjectId
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
+
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .data_set_schema import DataSetSchema
@@ -29,35 +38,29 @@ class DataSetService(object):
     Grabs all the data_sets for user by name
     """
     def find_all_data_sets_for(self, user_name):
-        data_sets  = self.data_set_client.find_all({'user_name': self.user_name}) or []
-        return [self.dump(data_set) for data_set in data_sets]
+        data_sets = self.data_set_client.find_all({'user_name': user_name}) or []
+        return json.encode(data_sets, cls=JSONEncoder)
 
     """
     Grabs all the not private data_sets
     """
     def find_all_public_data_sets(self):
-        data_sets  = self.data_set_client.find_all({'private': False}) or []
-        return [self.dump(data_set) for data_set in data_sets]
+        data_sets = self.data_set_client.find_all({'private': False}) or []
+        return JSONEncoder().encode(data_sets)
 
     """
     Finds a specific data_set by name, ignores privacy
     """
     def find_data_set(self, data_set_name):
-        data_set = self.data_set_client.find({'data_set_name': self.data_set_name})
-        if data_set:
-            return self.dump(data_set)
-        else:
-            return None
+        data_set = self.data_set_client.find({'data_set_name': data_set_name})
+        return JSONEncoder().encode(data_set)
 
     """
     Finds a specific data_set by name, check the user_name
     """
     def find_data_set_for(self, data_set_name, user_name):
-        data_set = self.data_set_client.find({'data_set_name': self.data_set_name, 'user_name': self.user_name})
-        if data_set:
-            return self.dump(data_set)
-        else:
-            return None
+        data_set = self.data_set_client.find({'data_set_name': data_set_name, 'user_name': user_name})
+        return JSONEncoder().encode(data_set)
 
 
     """
@@ -66,7 +69,8 @@ class DataSetService(object):
     Ensures only unique data_set_name
     """
     def create_data_set_for(self, data_set_name, file_size, description, data_set_url, private, user_name):
-        if self.find_data_set(data_set_name) == None:
+        data_set = self.data_set_client.find({'data_set_name': data_set_name})
+        if data_set == None:
             data_set = self.data_set_client.create(self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
             return True if data_set != None else False
         else:
@@ -79,22 +83,28 @@ class DataSetService(object):
     """
     def update_data_set_with(self, data_set_name, file_size, description, data_set_url, private, user_name):
         records_affected = 0
-        if self.find_data_set_for(data_set_name, user_name) != None:
-            records_affected = self.data_set_client.update({'data_set_name': self.data_set_name, 'user_name': self.user_name}, self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
+        data_set = self.data_set_client.find({'data_set_name': data_set_name, 'user_name': user_name})
+        if data_set != None:
+            records_affected = self.data_set_client.update({'data_set_name': data_set_name, 'user_name': user_name}, self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
         return True if records_affected > 0 else False
 
     """
     Deletes a specific data_set name if it exists
     """
     def delete_data_set_for(self, data_set_name, user_name):
-        records_affected = self.data_set_client.delete({'data_set_name': self.data_set_name, 'user_name': self.user_name})
+        records_affected = self.data_set_client.delete({'data_set_name': data_set_name, 'user_name': user_name})
         return True if records_affected > 0 else False
 
     """
     Dumps all non-identifying info about the data_set
     """
     def dump(self, data_set):
-        return DataSetSchema.dump(data_set)
+        data_set_dump = None
+        if data_set != None:
+            schema = DataSetSchema(exclude=['_id'])
+            data_set_dump = schema.dump(data_set)
+            print(data_set_dump, type(data_set_dump))
+        return data_set_dump
 
     """
     Used to update/create data_set
