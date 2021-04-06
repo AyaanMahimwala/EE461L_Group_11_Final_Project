@@ -9,7 +9,20 @@ class JSONEncoder(json.JSONEncoder):
 
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
+<<<<<<< HEAD
 from .data_set_schema import DataSetSchema
+=======
+from .data_set_schema import UserDataSetSchema
+from bs4 import BeautifulSoup as soup
+from urllib.request import urlopen
+import csv
+from datetime import datetime
+import os
+import time
+from random import randint
+
+DATASET_COLLECTION_NAME = "DataSet"
+>>>>>>> 7f423b3... Added webscraper for Physionet
 
 class DataSetService(object):
     """
@@ -108,6 +121,7 @@ class DataSetService(object):
     """
     Used to update/create data_set
     """
+<<<<<<< HEAD
     def prepare_data_set(self, data_set_name, file_size, description, data_set_url, private, user_name):
         data_set = {}
         data_set['data_set_name'] = data_set_name
@@ -119,3 +133,19 @@ class DataSetService(object):
         schema = DataSetSchema()
         result = schema.load(data_set)
         return result
+=======
+    def prepare_data_set(self, user_data_set):
+        data = user_data_set.data
+        data['user_id'] = self.user_id
+        return data
+
+    """
+    This function webscrapes all datasets from the Physionet database.
+    """
+    def web_scraper(self):
+        page = "https://physionet.org/about/database/"
+        page_html = urlopen(page).read()
+        page_soup = soup(page_html, "html.parser")
+        container = page_soup.findAll('a')      # All elements stored in container list
+        container = container[14:len(container)-4]
+>>>>>>> 7f423b3... Added webscraper for Physionet
