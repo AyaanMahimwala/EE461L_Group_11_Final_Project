@@ -30,6 +30,7 @@ import json
 os.environ["MOCK"] = "True"
 
 from Database.Login_Credentials.login_cred_service import LoginSetService
+from Database.Data_Sets.data_set_service import DataSetService
 
 # These two classes provide implementations of user classes
 # https://flask-login.readthedocs.io/en/latest/#your-user-class
@@ -45,8 +46,9 @@ class AnonUser(AnonymousUserMixin):
     user_name = "Anonymous"
 
 def create_app() -> Flask:
-    # Create exposed DB entry point
+    # Create exposed DB entry points
     my_login_set_service_g = LoginSetService()
+    my_data_set_service_g = DataSetService()
     # Static folder can house things like images or any backend data not suited for db storage
     app = Flask(__name__, static_folder="Static")
 
@@ -152,9 +154,11 @@ def create_app() -> Flask:
         #print(this_user_name)
         # Get the request user_password arg
         this_user_password = data.get("user_password")
+        # Get the request user_email arg
+        this_user_email = data.get("user_email")
         #print(this_user_password)
         # Return the serialized (by marshmallow schema) user
-        return jsonify({"login_created" : my_login_set_service_g.create_login_set_for(this_user_name, this_user_password)}), 200
+        return jsonify({"login_created" : my_login_set_service_g.create_login_set_for(this_user_name, this_user_password, this_user_email)}), 200
 
     # Update one user by id with password
     @app.route("/api/login_set/update", methods=["POST"])
@@ -164,8 +168,10 @@ def create_app() -> Flask:
         this_user_name = data.get("user_name")
         # Get the request user_password arg
         this_user_password = data.get("user_password")
+        # Get the request user_email arg
+        this_user_email = data.get("user_email")
         # Return the serialized (by marshmallow schema) user
-        return jsonify({"login_updated" : my_login_set_service_g.update_login_set_with(this_user_name, this_user_password)}), 200
+        return jsonify({"login_updated" : my_login_set_service_g.update_login_set_with(this_user_name, this_user_password, this_user_email)}), 200
 
     # Delete one user by id
     @app.route("/api/login_set/delete", methods=["POST"])
@@ -190,6 +196,85 @@ def create_app() -> Flask:
         #print(this_user_password)
         # Return the serialized (by marshmallow schema) user
         return jsonify({"login_validated" : my_login_set_service_g.validate_login_set(this_user_name, this_user_password)}), 200
+
+    # Get a count of the data sets
+    @app.route("/api/data_set/count", methods=["GET"])
+    def count_data_set():
+        return jsonify({"data_count" : my_data_set_service_g.count_data_set()}), 200
+
+    # Finds a specific data_set by name, ignores privacy
+    @app.route("/api/data_set/find/", methods=["GET"])
+    def find_data_set():
+        # Get the request this_data_set_name arg passed in query string
+        this_data_set_name = request.args.get("data_set_name")
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_found" : my_data_set_service_g.find_data_set(this_data_set_name)}), 200
+
+    # Grabs all the data_sets for user by name
+    @app.route("/api/data_set/find_for/", methods=["GET"])
+    def find_all_data_sets_for():
+        # Get the request user_name arg
+        this_user_name = request.args.get("user_name")
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_found" : my_data_set_service_g.find_all_data_sets_for(this_user_name)}), 200
+
+    # Grabs all the not private data_sets
+    @app.route("/api/data_set/find_all", methods=["GET"])
+    def find_all_public_data_sets():
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_found" : my_data_set_service_g.find_all_public_data_sets()}), 200
+
+    # Creates a specific data_set, if the user_name field is provided then create a user data set
+    @app.route("/api/data_set/create/", methods=["GET"])
+    @login_required
+    def create_data_set():
+        data = request.get_json()
+        # Get the request data_set_name arg
+        this_data_set_name = request.args.get("data_set_name")
+        # Get the request file_size data
+        this_file_size = data.get("file_size")
+        # Get the request description data
+        this_description = data.get("description")
+        # Get the request data_set_url data
+        this_data_set_url = data.get("data_set_url")
+        # Get the request private data
+        this_private = data.get("private")
+        # Get the current user
+        this_user_name = my_login_set_service_g.get_user_name_by_id(current_user.id)
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_created" : my_data_set_service_g.create_data_set_for(this_data_set_name, this_file_size, this_description, this_data_set_url, this_private, this_user_name)}), 200
+
+    # Update one data_set
+    @app.route("/api/data_set/update/", methods=["GET"])
+    @login_required
+    def update_data_set():
+        data = request.get_json()
+        # Get the request data_set_name arg
+        this_data_set_name = request.args.get("data_set_name")
+        # Get the request file_size data
+        this_file_size = data.get("file_size")
+        # Get the request description data
+        this_description = data.get("description")
+        # Get the request data_set_url data
+        this_data_set_url = data.get("data_set_url")
+        # Get the request private data
+        this_private = data.get("private")
+        # Get the current user
+        this_user_name = my_login_set_service_g.get_user_name_by_id(current_user.id)
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_created" : my_data_set_service_g.update_data_set_with(this_data_set_name, this_file_size, this_description, this_data_set_url, this_private, this_user_name)}), 200
+
+    # Delete one data_set
+    @app.route("/api/data_set/delete/", methods=["GET"])
+    @login_required
+    def delete_data_set():
+        # Get the request data_set_name arg
+        this_data_set_name = request.args.get("data_set_name")
+        # Get the current user
+        this_user_name = my_login_set_service_g.get_user_name_by_id(current_user.id)
+        # Return the serialized (by marshmallow schema) user
+        return jsonify({"data_set_deleted" : my_data_set_service_g.delete_data_set_for(this_data_set_name, this_user_name)}), 200
+
 
     # Api route for a form login
     # Forms mean that the user and pass aren't exposed in the request url
@@ -350,7 +435,7 @@ class TestLoginSet(unittest.TestCase):
         response = json.loads(self.client.post(
             "/api/login_set/create", 
             method="POST", 
-            data=json.dumps({"user_name" : "username", "user_password" : "password"}), 
+            data=json.dumps({"user_name" : "username", "user_password" : "password", "user_email" : "foo@bar.com"}), 
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_created"], True, "This should be true as this is first user post")
@@ -415,7 +500,7 @@ class TestLoginSet(unittest.TestCase):
         response = json.loads(self.client.post(
             "/api/login_set/create", 
             method="POST", 
-            data=json.dumps({"user_name" : "username", "user_password" : "password"}),
+            data=json.dumps({"user_name" : "username", "user_password" : "password", "user_email" : "foo@bar.com"}),
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_created"], True, "This should be true as this is first user post")
@@ -468,7 +553,7 @@ class TestLoginSet(unittest.TestCase):
         response = json.loads(self.client.post(
             "/api/login_set/update", 
             method="POST", 
-            data=json.dumps({"user_name" : "other_username", "user_password" : "other_password"}),
+            data=json.dumps({"user_name" : "other_username", "user_password" : "other_password", "user_email" : "other_foo@bar.com"}),
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_updated"], False, "This should be false as user posted and available for update but this is wrong user")
@@ -490,7 +575,7 @@ class TestLoginSet(unittest.TestCase):
         response = json.loads(self.client.post(
             "/api/login_set/update", 
             method="POST", 
-            data=json.dumps({"user_name" : "username", "user_password" : "other_password"}),
+            data=json.dumps({"user_name" : "username", "user_password" : "other_password", "user_email" : "foo@bar.com"}),
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_updated"], True, "This should be true as user posted and available for update")
@@ -515,7 +600,7 @@ class TestLoginSet(unittest.TestCase):
         response = json.loads(self.client.post(
             "/api/login_set/create", 
             method="POST", 
-            data=json.dumps({"user_name" : "username", "user_password" : "password"}),
+            data=json.dumps({"user_name" : "username", "user_password" : "password", "user_email" : "foo@bar.com"}),
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_created"], True, "This should be true as this is first user post")
@@ -635,6 +720,20 @@ class TestLoginSet(unittest.TestCase):
             content_type='application/json',
         ).get_data())
         self.assertEqual(response["login_found"], False, "This should be false as the user has not been posted")
+        print("----------------------------------------------------------------------")
+
+class TestDataSet(unittest.TestCase):
+    """
+    Tester class for data sets
+    https://flask.palletsprojects.com/en/1.1.x/reqcontext/
+    To run the tests go to top level of flask app and run cmdline "python test_app.py"
+    """
+    # Create the test client adapter
+    client = create_app().test_client()
+
+    def test_something(self):
+        print("----------------------------------------------------------------------")
+
         print("----------------------------------------------------------------------")
 
 if __name__ == '__main__':

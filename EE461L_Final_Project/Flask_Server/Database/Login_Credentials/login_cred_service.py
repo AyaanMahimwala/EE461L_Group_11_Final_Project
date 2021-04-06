@@ -113,6 +113,8 @@ class LoginSetService():
             #print("theres an entry")
             #print(login_set.get('user_name'), type(login_set.get('user_name')))
             for login_set in login_sets:
+                #print("In login set, encrypted user {}".format(login_set.get('user_name')))
+                #print("In find login, decrypted user {}".format(self.decrypt_message(login_set.get('user_name'))))
                 if (self.decrypt_message(login_set.get('user_name')) == user_name):
                     return True
         return False
@@ -239,7 +241,7 @@ class LoginSetService():
         login_set['user_email'] = user_email
         schema = LoginSetSchema()
         result = schema.load(login_set)
-        return login_set
+        return result
 
     """
     Return True if login creds match else False

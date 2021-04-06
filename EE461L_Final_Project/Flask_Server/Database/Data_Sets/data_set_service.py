@@ -1,7 +1,6 @@
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .data_set_schema import DataSetSchema
-from .data_set_schema import UserDataSetSchema
 
 class DataSetService(object):
     """
@@ -51,11 +50,22 @@ class DataSetService(object):
             return None
 
     """
-    Creates a specific data_set, if the user_name field is provided then create a user data set
+    Finds a specific data_set by name, check the user_name
+    """
+    def find_data_set_for(self, data_set_name, user_name):
+        data_set = self.data_set_client.find({'data_set_name': self.data_set_name, 'user_name': self.user_name})
+        if data_set:
+            return self.dump(data_set)
+        else:
+            return None
+
+
+    """
+    Creates a specific data_set
     Return true if sucessful create else false
     Ensures only unique data_set_name
     """
-    def create_data_set_for(self, data_set_name, file_size, description, data_set_url, private = False, user_name = None):
+    def create_data_set_for(self, data_set_name, file_size, description, data_set_url, private, user_name):
         if self.find_data_set(data_set_name) == None:
             data_set = self.data_set_client.create(self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
             return True if data_set != None else False
@@ -67,17 +77,17 @@ class DataSetService(object):
     If the name doesn't exist returns False as set not updated
     If it does update the set then returns true and changes reflected in db
     """
-    def update_data_set_with(self, data_set_name, file_size, description, data_set_url, private = False, user_name = None):
+    def update_data_set_with(self, data_set_name, file_size, description, data_set_url, private, user_name):
         records_affected = 0
-        if self.find_data_set(data_set_name) != None:
-            records_affected = self.data_set_client.update(self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
+        if self.find_data_set_for(data_set_name, user_name) != None:
+            records_affected = self.data_set_client.update({'data_set_name': self.data_set_name, 'user_name': self.user_name}, self.prepare_data_set(data_set_name, file_size, description, data_set_url, private, user_name))
         return True if records_affected > 0 else False
 
     """
     Deletes a specific data_set name if it exists
     """
-    def delete_data_set_for(self, data_set_name):
-        records_affected = self.data_set_client.delete({'data_set_name': self.data_set_name})
+    def delete_data_set_for(self, data_set_name, user_name):
+        records_affected = self.data_set_client.delete({'data_set_name': self.data_set_name, 'user_name': self.user_name})
         return True if records_affected > 0 else False
 
     """
@@ -96,9 +106,7 @@ class DataSetService(object):
         data_set['description'] = description
         data_set['data_set_url'] = data_set_url
         data_set['private'] = private
-        if user_name != None:
-            data_set['user_name'] = user_name
-            schema = UserDataSetSchema()
-        else:
-            schema = DataSetSchema()
-        return data_set
+        data_set['user_name'] = user_name
+        schema = DataSetSchema()
+        result = schema.load(data_set)
+        return result
