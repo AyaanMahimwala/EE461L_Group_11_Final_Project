@@ -74,11 +74,15 @@ class DataSetService(object):
         return data
 
     """
-    This function webscrapes all datasets from the Physionet database.
+    This function webscrapes all datasets from the Physionet database and returns a list of all dataset descriptions.
     """
-    def web_scraper(self):
+    def get_data_sets(self):
         page = "https://physionet.org/about/database/"
         page_html = urlopen(page).read()
+
         page_soup = soup(page_html, "html.parser")
+
         container = page_soup.findAll('a')      # All elements stored in container list
         container = container[14:len(container)-4]
+
+        return container
