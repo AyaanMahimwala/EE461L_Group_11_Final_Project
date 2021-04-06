@@ -1,6 +1,13 @@
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .data_set_schema import UserDataSetSchema
+from bs4 import BeautifulSoup as soup
+from urllib.request import urlopen
+import csv
+from datetime import datetime
+import os
+import time
+from random import randint
 
 DATASET_COLLECTION_NAME = "DataSet"
 
@@ -65,3 +72,13 @@ class DataSetService(object):
         data = user_data_set.data
         data['user_id'] = self.user_id
         return data
+
+    """
+    This function webscrapes all datasets from the Physionet database.
+    """
+    def web_scraper(self):
+        page = "https://physionet.org/about/database/"
+        page_html = urlopen(page).read()
+        page_soup = soup(page_html, "html.parser")
+        container = page_soup.findAll('a')      # All elements stored in container list
+        container = container[14:len(container)-4]
