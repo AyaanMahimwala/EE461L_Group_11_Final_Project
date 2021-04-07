@@ -14,8 +14,7 @@ from .data_set_schema import DataSetSchema
 class DataSetService(object):
     """
     Called on init, sets the client which is an abstract 'DataSet' on the frontend
-    and a mongodb entry on the backend. It also sets the 'user_id' so that we can 
-    save user specific data_sets or settings.
+    and a mongodb entry on the backend.
     """
 
     DATASET_COLLECTION_NAME = "DataSet"
