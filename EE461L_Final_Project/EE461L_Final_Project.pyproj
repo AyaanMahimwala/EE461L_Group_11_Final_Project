@@ -50,53 +50,6 @@
     <Folder Include="Flask_Server\Database\Login_Credentials\" />
     <Folder Include="Flask_Server\Source\" />
     <Folder Include="Flask_Server\Source\Main\" />
-    <Folder Include="React_App\" />
-    <Folder Include="React_App\Assets\" />
-    <Folder Include="React_App\Assets\Fonts\" />
-    <Folder Include="React_App\Assets\Images\" />
-    <Folder Include="React_App\Source\" />
-    <Folder Include="React_App\Source\Components\" />
-    <Folder Include="React_App\Source\Components\Dashboard\" />
-    <Folder Include="React_App\Source\Components\Dashboard\Elements\" />
-    <Folder Include="React_App\Source\Components\Dashboard\Elements\styles\" />
-    <Folder Include="React_App\Source\Components\Dashboard\Scripts\" />
-    <Folder Include="React_App\Source\Components\Home\" />
-    <Folder Include="React_App\Source\Components\Home\Elements\" />
-    <Folder Include="React_App\Source\Components\Home\Elements\styles\" />
-    <Folder Include="React_App\Source\Components\Home\Scripts\" />
-    <Folder Include="React_App\Source\Components\Index\" />
-    <Folder Include="React_App\Source\Components\Index\Elements\" />
-    <Folder Include="React_App\Source\Components\Index\Elements\styles\" />
-    <Folder Include="React_App\Source\Components\Index\Elements\views\" />
-    <Folder Include="React_App\Source\Components\Index\Scripts\" />
-    <Folder Include="React_App\Source\Components\Login\" />
-    <Folder Include="React_App\Source\Components\Login\Elements\" />
-    <Folder Include="React_App\Source\Components\Login\Elements\styles\" />
-    <Folder Include="React_App\Source\Components\Login\Scripts\" />
-    <Folder Include="React_App\Source\Components\Preferences\" />
-    <Folder Include="React_App\Source\Components\Preferences\Elements\" />
-    <Folder Include="React_App\Source\Components\Preferences\Elements\styles\" />
-    <Folder Include="React_App\Source\Components\Preferences\Scripts\" />
-    <Folder Include="React_App\Source\Main\" />
-    <Folder Include="React_App\Source\Main\Elements\" />
-    <Folder Include="React_App\Source\Main\Elements\Styles\" />
-    <Folder Include="React_App\Source\Main\Scripts\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="React_App\Source\Components\Dashboard\Elements\styles\dashboard.css" />
-    <Content Include="React_App\Source\Components\Dashboard\Scripts\dashboard.js" />
-    <Content Include="React_App\Source\Components\Home\Elements\styles\home.css" />
-    <Content Include="React_App\Source\Components\Home\Scripts\home.js" />
-    <Content Include="React_App\Source\Components\Index\Elements\styles\index.css" />
-    <Content Include="React_App\Source\Components\Index\Elements\views\bk_index.html" />
-    <Content Include="React_App\Source\Components\Index\Elements\views\index.html" />
-    <Content Include="React_App\Source\Components\Index\Scripts\index.js" />
-    <Content Include="React_App\Source\Components\Login\Elements\styles\login.css" />
-    <Content Include="React_App\Source\Components\Login\Scripts\login.js" />
-    <Content Include="React_App\Source\Components\Preferences\Elements\styles\preferences.css" />
-    <Content Include="React_App\Source\Components\Preferences\Scripts\preferences.js" />
-    <Content Include="React_App\Source\Main\Elements\Styles\app.css" />
-    <Content Include="React_App\Source\Main\Scripts\app.js" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
