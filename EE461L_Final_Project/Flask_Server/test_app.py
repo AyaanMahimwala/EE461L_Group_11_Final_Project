@@ -910,6 +910,7 @@ class TestDataSet(unittest.TestCase):
             "/api/data_set/find/", method="GET", 
             query_string={"data_set_name" : "data_set_name"}, 
         ).get_data())
+        #print(response)
         self.assertEqual(response["data_set_found"] != "null", True, "This should be true as data set posted")
 
         # Delete and find
