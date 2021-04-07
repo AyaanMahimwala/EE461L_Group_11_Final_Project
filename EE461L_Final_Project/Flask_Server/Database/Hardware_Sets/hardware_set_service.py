@@ -187,11 +187,17 @@ class HardwareSetService(object):
     Failed payment can simply call the delete
     """
     def create_ticket(self, hardware_set_name, cluster_name, unit_amount, user_name):
-        ...
+        if check_ticket(hardware_set_name, cluster_name, unit_amount) == True:
+            # Cluster resources available
+            # Need to get the harware set to get the price for ticket
+            hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name})
+            ticket = self.checkout_hardware_set_client.create(self.prepare_ticket(hardware_set_name, cluster_name, unit_amount, hardware_set.get('price_per_unit'), user_name))
+            return True if hardware_set != None else False
 
     """
     Method for user to change their ticket resource amount
     Can migrate cluster if its available
+    Not sure if I want to implement this yet as there are arguement for not having it making sense
     """
     def update_ticket(self, hardware_set_name, cluster_name, unit_amount, user_name):
         ...
@@ -201,7 +207,8 @@ class HardwareSetService(object):
     Also used above by the migrates in update function
     """
     def delete_ticket(self, hardware_set_name, cluster_name, user_name):
-        ...
+        records_affected = self.checkout_hardware_set_client.delete({'hardware_set_name': hardware_set_name, 'cluster_name': cluster_name, 'user_name': user_name})
+        return True if records_affected > 0 else False
 
     """
     Used to prepare a ticket
