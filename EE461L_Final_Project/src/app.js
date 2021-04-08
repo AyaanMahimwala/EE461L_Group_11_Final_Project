@@ -329,8 +329,8 @@ export default function MiniDrawer() {
                 <div className="row">
                     <div className="column">
                         <Flippy
-                            flipOnHover={false} // default false
-                            flipOnClick={true} // default false
+                            flipOnHover={true} // default false
+                            flipOnClick={false} // default false
                             flipDirection="horizontal" // horizontal or vertical
                             // if you pass isFlipped prop component will be controlled component.
                             // and other props, which will go to div
@@ -400,8 +400,8 @@ export default function MiniDrawer() {
                     </div>
                     <div className="column">
                         <Flippy
-                            flipOnHover={false} // default false
-                            flipOnClick={true} // default false
+                            flipOnHover={true} // default false
+                            flipOnClick={false} // default false
                             flipDirection="horizontal" // horizontal or vertical
                             // if you pass isFlipped prop component will be controlled component.
                             // and other props, which will go to div
@@ -471,8 +471,8 @@ export default function MiniDrawer() {
                     </div>
                     <div className="column">
                         <Flippy
-                            flipOnHover={false} // default false
-                            flipOnClick={true} // default false
+                            flipOnHover={true} // default false
+                            flipOnClick={false} // default false
                             flipDirection="horizontal" // horizontal or vertical
                             // if you pass isFlipped prop component will be controlled component.
                             // and other props, which will go to div
