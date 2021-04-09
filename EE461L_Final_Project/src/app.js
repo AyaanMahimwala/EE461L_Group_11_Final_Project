@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -42,6 +42,7 @@ import "./row_col.css";
 import { FormatAlignCenter } from "../node_modules/@material-ui/icons/index";
 
 import HardwareSetCard from "./components/HardwareSetCard";
+import { getHardwareSets } from "./api";
 
 const drawerWidth = 240;
 
@@ -124,6 +125,15 @@ export default function MiniDrawer() {
   const open_prof = Boolean(anchorEl);
 
   const [open_login, setOpenLogin] = React.useState(false);
+
+  const [remainingHWSets, setRemainingHWSets] = useState([]);
+
+  useEffect(() => {
+    getHardwareSets().then((result) => {
+      setRemainingHWSets(result.remaining);
+      console.log(remainingHWSets[0]);
+    });
+  }, []);
 
   const handleOpenLogin = () => {
     auth ? setAuth(!auth) : setOpenLogin(true);
@@ -357,6 +367,7 @@ export default function MiniDrawer() {
               title="Super Computer - DeepDream"
               description="This is our most powerful compute solution, suitable for longer time
             scales and complex compute tasks"
+              remaining={remainingHWSets[0]}
             />
           </div>
           <div className="column">
@@ -365,6 +376,7 @@ export default function MiniDrawer() {
               description="These rigs come fully equiped with multicore AMD EPIC
               processors and well and a variety of GPUs to suit your compute
               needs"
+              remaining={remainingHWSets[1]}
             />
           </div>
           <div className="column">
@@ -372,6 +384,7 @@ export default function MiniDrawer() {
               title="Nano Compute - TheTiny"
               description="Your code will run on a raspberry pi module with limited
               resources and compute power"
+              remaining={remainingHWSets[2]}
             />
           </div>
         </div>

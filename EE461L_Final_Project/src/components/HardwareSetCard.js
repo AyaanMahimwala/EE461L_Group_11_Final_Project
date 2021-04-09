@@ -47,6 +47,14 @@ export default function HardwareSetCard(props) {
           >
             {props.title}
           </h3>
+          <h3
+            style={{
+              color: "#FFFFFF",
+              height: "20%",
+            }}
+          >
+            {props.remaining} remaining units.
+          </h3>
         </FrontSide>
         <BackSide
           style={{
