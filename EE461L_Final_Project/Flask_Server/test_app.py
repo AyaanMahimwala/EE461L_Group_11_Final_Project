@@ -27,7 +27,8 @@ import os
 import json
 
 # Setting the enviorn tag to mock uses a mock mongo db instead of the served db
-os.environ["MOCK"] = "True"
+os.environ["MOCK"] = "False"
+os.environ["MONGO_DB_URI"] = "mongodb+srv://EE461L_Database_Username:EE461L_Database_Password@cluster0.mtond.mongodb.net/EE461L_Final_Project_DB?retryWrites=true&w=majority"
 
 from Database.Login_Credentials.login_cred_service import LoginSetService
 from Database.Data_Sets.data_set_service import DataSetService

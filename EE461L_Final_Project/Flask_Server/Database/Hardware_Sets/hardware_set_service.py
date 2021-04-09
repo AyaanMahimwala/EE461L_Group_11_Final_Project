@@ -11,7 +11,7 @@ class JSONEncoder(json.JSONEncoder):
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .hardware_set_schema import HardwareSetSchema
-from .hardware_set_schema import CheckoutHardwareSetSchema
+from .hardware_set_schema import CheckOutHardwareSetSchema
 
 class HardwareSetService(object):
     """
@@ -225,6 +225,6 @@ class HardwareSetService(object):
         checkout_hardware_set['price_per_unit'] = price_per_unit
         checkout_hardware_set['user_name'] = user_name
         checkout_hardware_set['ticket_creation_timestamp'] = ticket_creation_timestamp
-        schema = CheckoutHardwareSetSchema()
+        schema = CheckOutHardwareSetSchema()
         result = schema.load(checkout_hardware_set)
         return result

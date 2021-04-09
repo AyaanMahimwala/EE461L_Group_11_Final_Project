@@ -20,6 +20,7 @@ class MongoEntry():
                 print("[+] Running client as hosted!")
                 self.my_client = MongoClient( self.DATABASE_HOST )
                 self.my_client.test.authenticate( self.DATABASE_USERNAME , self.DATABASE_PASSWORD )
+            #dblist = my_client.list_database_names()
             self.my_db = self.my_client[self.DATABASE_NAME]
             if not collection_name in self.my_db.list_collection_names():
                 # Add collection if it doesn't already exist
