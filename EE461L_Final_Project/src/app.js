@@ -1,57 +1,61 @@
-import React from 'react';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
+import React, { useState, useEffect } from "react";
+import clsx from "clsx";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import List from "@material-ui/core/List";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
+import MenuIcon from "@material-ui/icons/Menu";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import InboxIcon from "@material-ui/icons/MoveToInbox";
+import MailIcon from "@material-ui/icons/Mail";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
 
-import DnsRoundedIcon from '@material-ui/icons/DnsRounded';
-import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
-import BookmarksIcon from '@material-ui/icons/Bookmarks';
-import ReceiptIcon from '@material-ui/icons/Receipt';
-import HelpIcon from '@material-ui/icons/Help';
+import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
+import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
+import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
+import AssessmentIcon from "@material-ui/icons/Assessment";
+import DesktopWindowsIcon from "@material-ui/icons/DesktopWindows";
+import BookmarksIcon from "@material-ui/icons/Bookmarks";
+import ReceiptIcon from "@material-ui/icons/Receipt";
+import HelpIcon from "@material-ui/icons/Help";
 
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
-import Flippy, { FrontSide, BackSide } from 'react-flippy';
+import "./row_col.css";
+import { FormatAlignCenter } from "../node_modules/@material-ui/icons/index";
 
-import './row_col.css'
-import { FormatAlignCenter } from '../node_modules/@material-ui/icons/index';
+import HardwareSetCard from "./components/HardwareSetCard";
+//import { getHardwareSets } from "./api";
+
+import LoginComponent from "./components/LoginComponent";
+import SignupComponent from "./components/SignupComponent";
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        display: 'flex',
+        display: "flex",
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
-        transition: theme.transitions.create(['width', 'margin'], {
+        transition: theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
@@ -62,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     appBarShift: {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
+        transition: theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
         }),
@@ -74,35 +78,35 @@ const useStyles = makeStyles((theme) => ({
         marginRight: 36,
     },
     hide: {
-        display: 'none',
+        display: "none",
     },
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
-        whiteSpace: 'nowrap',
+        whiteSpace: "nowrap",
     },
     drawerOpen: {
         width: drawerWidth,
-        transition: theme.transitions.create('width', {
+        transition: theme.transitions.create("width", {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
         }),
     },
     drawerClose: {
-        transition: theme.transitions.create('width', {
+        transition: theme.transitions.create("width", {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
-        overflowX: 'hidden',
+        overflowX: "hidden",
         width: theme.spacing(7) + 1,
-        [theme.breakpoints.up('sm')]: {
+        [theme.breakpoints.up("sm")]: {
             width: theme.spacing(9) + 1,
         },
     },
     toolbar: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-end",
         padding: theme.spacing(0, 1),
         // necessary for content to be below app bar
         ...theme.mixins.toolbar,
@@ -111,7 +115,7 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1,
         padding: theme.spacing(3),
         background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-        height: "100vh"
+        height: "100vh",
     },
 }));
 
@@ -124,26 +128,33 @@ export default function MiniDrawer() {
     const open_prof = Boolean(anchorEl);
 
     const [open_login, setOpenLogin] = React.useState(false);
+    const [open_signup, setOpenSignup] = React.useState(false);
 
-    const handleOpenLogin = () => {
+    //const [remainingHWSets, setRemainingHWSets] = useState([]);
+
+    /*
+    useEffect(() => {
+        getHardwareSets().then((result) => {
+            setRemainingHWSets(result);
+            console.log(remainingHWSets);
+        });
+    }, []);
+    */
+
+    const handleToggleLogin = () => {
         auth ? setAuth(!auth) : setOpenLogin(true);
     };
 
-    const handleCloseLogin = () => {
-        setOpenLogin(false);
+    const handleOpenSignup = () => {
+        setOpenSignup(true)
     };
-
+    
     const handleDrawerOpen = () => {
         setOpen(true);
     };
 
     const handleDrawerClose = () => {
         setOpen(false);
-    };
-
-    const handleClickLogin = () => {
-        setAuth(!auth);
-        setOpenLogin(false);
     };
 
     const handleLogout = () => {
@@ -182,7 +193,7 @@ export default function MiniDrawer() {
                     </IconButton>
                     <Typography variant="h6" noWrap className={classes.appBarTitle}>
                         UT Compute
-                    </Typography>
+          </Typography>
                     {auth && (
                         <div className={classes.appBarItem}>
                             <IconButton
@@ -198,13 +209,13 @@ export default function MiniDrawer() {
                                 id="menu-appbar"
                                 anchorEl={anchorEl}
                                 anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'center',
+                                    vertical: "bottom",
+                                    horizontal: "center",
                                 }}
                                 keepMounted
                                 transformOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'right',
+                                    vertical: "bottom",
+                                    horizontal: "right",
                                 }}
                                 open={open_prof}
                                 onClose={handleClose}
@@ -219,46 +230,36 @@ export default function MiniDrawer() {
                         <Button
                             aria-label="login logout button"
                             variant="contained"
-                            color={auth ? 'secondary' : 'default'}
-                            onClick={handleOpenLogin}
+                            color={auth ? "secondary" : "default"}
+                            onClick={handleToggleLogin}
                         >
-                            {auth ? 'Logout' : 'Login'}
+                            {auth ? "Logout" : "Login"}
                         </Button>
-                        <Dialog open={open_login} onClose={handleCloseLogin} aria-labelledby="form-dialog-title">
-                            <DialogTitle id="form-dialog-title">Login or Signup</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText>
-                                    To login please enter the username and password you signed up with.
-                                </DialogContentText>
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="username"
-                                    required="true"
-                                    label="Username"
-                                    type="text"
-                                    fullWidth
-                                />
-                                <TextField
-                                    autoFocus
-                                    margin="dense"
-                                    id="password"
-                                    required="true"
-                                    label="Password"
-                                    type="password"
-                                    fullWidth
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleCloseLogin} color="primary">
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleClickLogin} color="primary">
-                                    Login
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                        <LoginComponent
+                            auth={auth}
+                            setAuth={setAuth}
+                            open_login={open_login}
+                            setOpenLogin={setOpenLogin}
+                        />
                     </div>
+                    {!auth && (
+                        <div className={classes.appBarItem}>
+                            <Button
+                                aria-label="signup button"
+                                variant="contained"
+                                color="blue"
+                                onClick={handleOpenSignup}
+                            >
+                                {"Signup"}
+                            </Button>
+                            <SignupComponent 
+                                auth={auth}
+                                setAuth={setAuth}
+                                open_signup={open_signup}
+                                setOpenSignup={setOpenSignup}
+                            />
+                        </div>
+                    )}
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -276,22 +277,32 @@ export default function MiniDrawer() {
             >
                 <div className={classes.toolbar}>
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                        {theme.direction === "rtl" ? (
+                            <ChevronRightIcon />
+                        ) : (
+                                <ChevronLeftIcon />
+                            )}
                     </IconButton>
                 </div>
                 <div>
                     <Divider />
                     <List>
                         <ListItem button key="Hardware Sets">
-                            <ListItemIcon><DnsRoundedIcon /></ListItemIcon>
+                            <ListItemIcon>
+                                <DnsRoundedIcon />
+                            </ListItemIcon>
                             <ListItemText primary="Hardware Sets" />
                         </ListItem>
                         <ListItem button key="Data Sets">
-                            <ListItemIcon><SettingsEthernetIcon /></ListItemIcon>
+                            <ListItemIcon>
+                                <SettingsEthernetIcon />
+                            </ListItemIcon>
                             <ListItemText primary="Data Sets" />
                         </ListItem>
                         <ListItem button key="Contact Us">
-                            <ListItemIcon><HelpIcon /></ListItemIcon>
+                            <ListItemIcon>
+                                <HelpIcon />
+                            </ListItemIcon>
                             <ListItemText primary="Contact Us" />
                         </ListItem>
                     </List>
@@ -301,23 +312,33 @@ export default function MiniDrawer() {
                         <Divider />
                         <List>
                             <ListItem button key="Hardware Set Tickets">
-                                <ListItemIcon><ReceiptIcon /></ListItemIcon>
+                                <ListItemIcon>
+                                    <ReceiptIcon />
+                                </ListItemIcon>
                                 <ListItemText primary="Hardware Set Tickets" />
                             </ListItem>
                             <ListItem button key="Data Set Bookmarks">
-                                <ListItemIcon><BookmarksIcon /></ListItemIcon>
+                                <ListItemIcon>
+                                    <BookmarksIcon />
+                                </ListItemIcon>
                                 <ListItemText primary="Data Set Bookmarks" />
                             </ListItem>
                             <ListItem button key="Account">
-                                <ListItemIcon><AccountBalanceWalletIcon /></ListItemIcon>
+                                <ListItemIcon>
+                                    <AccountBalanceWalletIcon />
+                                </ListItemIcon>
                                 <ListItemText primary="Account" />
                             </ListItem>
                             <ListItem button key="Dashboard">
-                                <ListItemIcon><AssessmentIcon /></ListItemIcon>
+                                <ListItemIcon>
+                                    <AssessmentIcon />
+                                </ListItemIcon>
                                 <ListItemText primary="Dashboard" />
                             </ListItem>
                             <ListItem button key="Console">
-                                <ListItemIcon><DesktopWindowsIcon /></ListItemIcon>
+                                <ListItemIcon>
+                                    <DesktopWindowsIcon />
+                                </ListItemIcon>
                                 <ListItemText primary="Console" />
                             </ListItem>
                         </List>
@@ -328,217 +349,29 @@ export default function MiniDrawer() {
                 <div className={classes.toolbar} />
                 <div className="row">
                     <div className="column">
-                        <Flippy
-                            flipOnHover={true} // default false
-                            flipOnClick={false} // default false
-                            flipDirection="horizontal" // horizontal or vertical
-                            // if you pass isFlipped prop component will be controlled component.
-                            // and other props, which will go to div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                padding: '20px 10px',
-                            }} /// these are optional style, it is not necessary
-                        >
-                            <FrontSide
-                                style={{
-                                    backgroundColor: '#41669d',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    Super Computer - DeepDream
-                                </h3>
-                            </FrontSide>
-                            <BackSide
-                                style={{
-                                    backgroundColor: '#001122',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    Super Computer - DeepDream
-                                </h3>
-                                <p
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '50%',
-                                    }}
-                                >
-                                    This is our most powerful compute solution, suitable for longer time scales and complex compute tasks
-                                </p>
-                                <Button
-                                    aria-label="reserve PacMan"
-                                    variant="contained"
-                                    color='default'
-                                //onClick={}
-                                >
-                                    Reserve Details
-                                </Button>
-                            </BackSide>
-                        </Flippy>
+                        <HardwareSetCard
+                            title="Super Computer - DeepDream"
+                            description="This is our most powerful compute solution, suitable for longer time
+            scales and complex compute tasks"
+                            remaining={10}
+                        />
                     </div>
                     <div className="column">
-                        <Flippy
-                            flipOnHover={true} // default false
-                            flipOnClick={false} // default false
-                            flipDirection="horizontal" // horizontal or vertical
-                            // if you pass isFlipped prop component will be controlled component.
-                            // and other props, which will go to div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                padding: '20px 10px',
-                            }} /// these are optional style, it is not necessary
-                        >
-                            <FrontSide
-                                style={{
-                                    backgroundColor: '#41669d',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    General Purpose Cloud Computing - PacMan
-                                </h3>
-                            </FrontSide>
-                            <BackSide
-                                style={{
-                                    backgroundColor: '#001122',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    General Purpose Cloud Computing - PacMan
-                                </h3>
-                                <p
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '50%',
-                                    }}
-                                >
-                                    These rigs come fully equiped with multicore AMD EPIC processors and well and a variety of GPUs to suit your compute needs
-                                </p>
-                                <Button
-                                    aria-label="reserve PacMan"
-                                    variant="contained"
-                                    color='default'
-                                //onClick={}
-                                >
-                                    Reserve Details
-                                </Button>
-                            </BackSide>
-                        </Flippy>
+                        <HardwareSetCard
+                            title="General Purpose Cloud Computing - PacMan"
+                            description="These rigs come fully equiped with multicore AMD EPIC
+              processors and well and a variety of GPUs to suit your compute
+              needs"
+                            remaining={11}
+                        />
                     </div>
                     <div className="column">
-                        <Flippy
-                            flipOnHover={true} // default false
-                            flipOnClick={false} // default false
-                            flipDirection="horizontal" // horizontal or vertical
-                            // if you pass isFlipped prop component will be controlled component.
-                            // and other props, which will go to div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                padding: '20px 10px',
-                            }} /// these are optional style, it is not necessary
-                        >
-                            <FrontSide
-                                style={{
-                                    backgroundColor: '#41669d',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    Nano Compute - TheTiny
-                                </h3>
-                            </FrontSide>
-                            <BackSide
-                                style={{
-                                    backgroundColor: '#001122',
-                                    position: 'absolute',
-                                    width: '100%',
-                                    height: '100%',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 15px 0 rgba(0,0,0,0.25)',
-                                }}
-                                animationDuration='1000'
-                            >
-                                <h3
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '20%',
-                                    }}
-                                >
-                                    Nano Compute - TheTiny
-                                </h3>
-                                <p
-                                    style={{
-                                        color: '#FFFFFF',
-                                        height: '50%',
-                                    }}
-                                >
-                                    Your code will run on a raspberry pi module with limited resources and compute power
-                                </p>
-                                <Button
-                                    aria-label="reserve PacMan"
-                                    variant="contained"
-                                    color='default'
-                                    //onClick={}
-                                >
-                                    Reserve Details
-                                </Button>
-                            </BackSide>
-                        </Flippy>
+                        <HardwareSetCard
+                            title="Nano Compute - TheTiny"
+                            description="Your code will run on a raspberry pi module with limited
+              resources and compute power"
+                            remaining={12}
+                        />
                     </div>
                 </div>
             </main>
