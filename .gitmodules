@@ -1,3 +1,6 @@
 [submodule "Flask_Backend"]
 	path = Flask_Backend
 	url = https://github.com/jpf982/Flask_Backend.git
+[submodule "React_Frontend"]
+	path = React_Frontend
+	url = https://github.com/jpf982/React_Frontend.git
