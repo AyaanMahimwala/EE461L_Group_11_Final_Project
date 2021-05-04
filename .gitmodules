@@ -4,9 +4,3 @@
 [submodule "React_Frontend"]
 	path = React_Frontend
 	url = https://github.com/jpf982/React_Frontend.git
-[submodule "backend-root-dir"]
-	path = backend-root-dir
-	url = https://github.com/jpf982/React_Frontend.git
-[submodule "frontend-root-dir"]
-	path = frontend-root-dir
-	url = https://github.com/jpf982/React_Frontend.git
