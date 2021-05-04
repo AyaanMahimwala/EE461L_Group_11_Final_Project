@@ -137,7 +137,7 @@ class LoginSetService():
             #print(True if login_set != None else False)
             return True if login_set != None else False
         else:
-            #print("user already exists")
+            print("user already exists")
             return False
     
     """

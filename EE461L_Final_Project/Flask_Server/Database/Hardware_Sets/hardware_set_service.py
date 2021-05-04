@@ -11,7 +11,7 @@ class JSONEncoder(json.JSONEncoder):
 from ..db_entry import DataSet
 from ..mongo import MongoEntry
 from .hardware_set_schema import HardwareSetSchema
-from .hardware_set_schema import CheckoutHardwareSetSchema
+from .hardware_set_schema import CheckOutHardwareSetSchema
 
 class HardwareSetService(object):
     """
@@ -20,11 +20,22 @@ class HardwareSetService(object):
     """
 
     HARDWARESET_COLLECTION_NAME = "HardwareSet"
-    CHECKOUT_HARDWARESET_COLLECTION_NAME = "CheckoutHardwareSet"
+    HARDWARESET_TICKETS_COLLECTION_NAME = "HardwareSetTickets"
 
     def __init__(self):
         self.hardware_set_client = DataSet(adapter=MongoEntry(self.HARDWARESET_COLLECTION_NAME))
-        self.checkout_hardware_set_client = DataSet(adapter=MongoEntry(self.CHECKOUT_HARDWARESET_COLLECTION_NAME))
+        self.hardware_set_tickets = DataSet(adapter=MongoEntry(self.HARDWARESET_TICKETS_COLLECTION_NAME))
+
+    def copy_hardware_set(self, hardware_set):
+        dict = {}
+        dict["hardware_set_name"] = hardware_set["hardware_set_name"]
+        dict["description"] = hardware_set["description"]
+        dict["price_per_unit"] = hardware_set["price_per_unit"]
+        dict["capacity"] = hardware_set["capacity"]
+        dict["availability"] = hardware_set["availability"]
+
+        return dict
+
 
     ### ADMIN INTERFACE FOR HARDWARE SET MANAGEMENT ###
 
@@ -43,15 +54,30 @@ class HardwareSetService(object):
     Grabs all the hardware_sets
     """
     def find_all_hardware_sets(self):
-        hardware_sets = list(self.hardware_set_client.find_all({})) or []
-        return JSONEncoder().encode(hardware_sets)
+        hardware_sets = self.hardware_set_client.find_all({}) or []
+        names = []
+        for hardware_set in hardware_sets:
+            names.append(hardware_set["hardware_set_name"])
+        return names
 
     """
     Finds a specific hardware_set by name
     """
     def find_hardware_set(self, hardware_set_name):
-        hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name})
-        return JSONEncoder().encode(hardware_set)
+        hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name}) or {}
+        hardware_set = self.copy_hardware_set(hardware_set)
+        print("Found set : {} of type {}".format(hardware_set, type(hardware_set)))
+        if hardware_set != {}:
+            return hardware_set
+        else:
+            hardware_set = {
+                "hardware_set_name" : "No Name", 
+                "capacity": 0,
+                "availability": 0,
+                "description": "No desciption.",
+                "price_per_unit": 0.0
+            }
+            return hardware_set
 
     """
     Creates a specific hardware_set
@@ -133,7 +159,7 @@ class HardwareSetService(object):
         records_affected = self.hardware_set_client.delete({'hardware_set_name': hardware_set_name})
         if records_affected > 0:
             # Delete any open resource tickets
-            self.checkout_hardware_set_client.delete({'hardware_set_name': hardware_set_name})
+            self.hardware_set_tickets.delete({'hardware_set_name': hardware_set_name})
         return True if records_affected > 0 else False
 
     """
@@ -156,7 +182,7 @@ class HardwareSetService(object):
     Method that returns the count of hardware set tickets checked out
     """
     def count_checkout_hardware_set(self):
-        checkout_hardware_sets = list(self.checkout_hardware_set_client.find_all({})) or []
+        checkout_hardware_sets = list(self.hardware_set_tickets.find_all({})) or []
         if checkout_hardware_sets != []:
             #print(hardware_sets)
             return int(len(checkout_hardware_sets))
@@ -168,12 +194,11 @@ class HardwareSetService(object):
     Should ensure the requested resource is entirely available
     Returns True if ticket passes check else False
     """
-    def check_ticket(self, hardware_set_name, cluster_name, unit_amount):
-        hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name})
-        if hardware_set == None:
+    def check_ticket(self, hardware_set_name, unit_amount):
+        hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name}) or {}
+        if hardware_set != {}:
             availability = hardware_set.get('availability')
-            cluster_resources_available = availability[cluster_name]
-            if unit_amount <= cluster_resources_available:
+            if unit_amount <= availability:
                 return True
             else:
                 return False
@@ -181,50 +206,104 @@ class HardwareSetService(object):
             return False
 
     """
+    Grabs all the tickets for user
+    """
+    def find_tickets_for(self, user_name):
+        tickets = self.hardware_set_tickets.find_all({'user_name': user_name}) or []
+        list_tickets = []
+        for ticket in tickets:
+            list_tickets.append("You, " + ticket.get('user_name') + ", checked out " + str(ticket.get('unit_amount')) + " from set " + ticket.get('hardware_set_name') + " for " +  str(ticket.get('price_per_unit')))
+        return list_tickets
+
+    """
     Method for users to checkout resources on a ticket by hardware set name
-    Provide the cluster name and the amount to checkout
+    Provide the amount to checkout
     Will reserve this amount until payment is collect
     Failed payment can simply call the delete
     """
-    def create_ticket(self, hardware_set_name, cluster_name, unit_amount, user_name):
-        if check_ticket(hardware_set_name, cluster_name, unit_amount) == True:
+    def create_ticket(self, hardware_set_name, unit_amount, user_name):
+        unit_amount = int(unit_amount)
+        if self.check_ticket(hardware_set_name, unit_amount) == True:
             # Cluster resources available
             # Need to get the harware set to get the price for ticket
-            hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name})
-            ticket = self.checkout_hardware_set_client.create(self.prepare_ticket(hardware_set_name, cluster_name, unit_amount, hardware_set.get('price_per_unit'), user_name))
-            return True if hardware_set != None else False
+            hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name}) or {}
+            if hardware_set == {}:
+                return False
+            old_ticket = self.hardware_set_tickets.find({'hardware_set_name': hardware_set_name, 'user_name': user_name}) or {}
+            if old_ticket != {}:
+                # Combine tickets
+                self.delete_ticket(hardware_set_name, user_name)
+                ticket = self.hardware_set_tickets.create(self.prepare_ticket(hardware_set_name, unit_amount + old_ticket.get('unit_amount'), hardware_set.get('price_per_unit'), user_name))
+            else:
+                ticket = self.hardware_set_tickets.create(self.prepare_ticket(hardware_set_name, unit_amount, hardware_set.get('price_per_unit'), user_name))
+            # Update availability
+            hardware_set["availability"] = hardware_set.get('availability') - unit_amount
+            self.hardware_set_client.update({'hardware_set_name': hardware_set_name}, hardware_set)
+            return True
+        else:
+            return False
 
     """
     Method for user to change their ticket resource amount
     Can migrate cluster if its available
     Not sure if I want to implement this yet as there are arguement for not having it making sense
     """
-    def update_ticket(self, hardware_set_name, cluster_name, unit_amount, user_name):
-        ...
+    def update_ticket(self, hardware_set_name, unit_amount, user_name):
+        unit_amount = int(unit_amount)
+        old_ticket = self.hardware_set_tickets.find({'hardware_set_name': hardware_set_name, 'user_name': user_name}) or {}
+        if old_ticket == {}:
+            # Somehow got bad request just make a ticket
+            return self.create_ticket(hardware_set_name, unit_amount, user_name)
+        # Delete if 0
+        if unit_amount == 0:
+            return self.delete_ticket(hardware_set_name, user_name)
+        # We must have an old ticket, pretend like we check back in and make new
+        # Check we have the availability
+        new_unit_amount = unit_amount - old_ticket.get('unit_amount')
+        if self.check_ticket(hardware_set_name, new_unit_amount) == True:
+            # Cluster resources available
+            # Need to get the harware set to get the price for ticket
+            hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name})
+            # Make new ticket
+            self.delete_ticket(hardware_set_name, user_name)
+            return self.create_ticket(hardware_set_name, unit_amount, user_name)
+        else:
+            return False
 
     """
     Method for users (or payment portal bail out) to free/delete hardware resource tickets
     Also used above by the migrates in update function
     """
-    def delete_ticket(self, hardware_set_name, cluster_name, user_name):
-        records_affected = self.checkout_hardware_set_client.delete({'hardware_set_name': hardware_set_name, 'cluster_name': cluster_name, 'user_name': user_name})
+    def delete_ticket(self, hardware_set_name, user_name):
+        # Need to get the harware set to get the price for ticket
+        hardware_set = self.hardware_set_client.find({'hardware_set_name': hardware_set_name}) or {}
+        if hardware_set == {}:
+            return False
+        old_ticket = self.hardware_set_tickets.find({'hardware_set_name': hardware_set_name, 'user_name': user_name}) or {}
+        if old_ticket == {}:
+            # Bad req
+            return False
+        unit_amount = old_ticket.get('unit_amount')
+        # Update availability
+        hardware_set["availability"] = hardware_set.get('availability') + unit_amount
+        self.hardware_set_client.update({'hardware_set_name': hardware_set_name}, hardware_set)
+        records_affected = self.hardware_set_tickets.delete({'hardware_set_name': hardware_set_name, 'user_name': user_name})
         return True if records_affected > 0 else False
 
     """
     Used to prepare a ticket
     """
-    def prepare_ticket(self, hardware_set_name, cluster_name, unit_amount, price_per_unit, user_name):
+    def prepare_ticket(self, hardware_set_name, unit_amount, price_per_unit, user_name):
         # current date and time
         now = datetime.now()
         ticket_creation_timestamp = datetime.timestamp(now)
 
         checkout_hardware_set = {}
         checkout_hardware_set['hardware_set_name'] = hardware_set_name
-        checkout_hardware_set['cluster_name'] = cluster_name
         checkout_hardware_set['unit_amount'] = unit_amount
         checkout_hardware_set['price_per_unit'] = price_per_unit
         checkout_hardware_set['user_name'] = user_name
         checkout_hardware_set['ticket_creation_timestamp'] = ticket_creation_timestamp
-        schema = CheckoutHardwareSetSchema()
+        schema = CheckOutHardwareSetSchema()
         result = schema.load(checkout_hardware_set)
         return result
